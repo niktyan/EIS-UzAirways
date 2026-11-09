@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Соберите экран руководителя</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --ink:#0e2242; --ink-2:#44546f; --ink-3:#6b7a93;
+  --sky:#1b5fc4; --sky-deep:#12408a; --sky-soft:#e6eefb;
+  --cloud:#eef3f9; --white:#fff; --line:#d6dfeb;
+  --ok:#1b7f3b; --ok-soft:#e3f3e8; --warn:#b86a00; --warn-soft:#fdf1dc; --bad:#c4302b; --bad-soft:#fbe6e5;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Manrope,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--cloud);color:var(--ink);font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #7fb0ff;outline-offset:2px}
+.mono{font-variant-numeric:tabular-nums;font-weight:800;letter-spacing:-.01em}
+
+/* top */
+.top{position:sticky;top:0;z-index:20;background:var(--ink);color:#fff}
+.top-in{max-width:1040px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600}
+.top-in .ttl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-in .cnt{opacity:.75;white-space:nowrap}
+.prog{height:4px;background:rgba(255,255,255,.15)}
+.prog i{display:block;height:100%;width:0;background:#6fb0ff;transition:width .3s}
+
+.page{max-width:1040px;margin:0 auto;padding:0 16px 120px}
+
+/* intro */
+.intro{padding:28px 0 8px}
+.intro h1{font-size:34px;line-height:1.08;letter-spacing:-.02em;font-weight:800;margin:0 0 12px}
+.intro p{margin:0 0 12px;color:var(--ink-2);max-width:34em}
+.intro .how{display:flex;flex-direction:column;gap:8px;margin:18px 0 22px;padding:0;list-style:none}
+.intro .how li{display:flex;gap:12px;align-items:flex-start}
+.intro .how b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--sky);color:#fff;display:grid;place-items:center;font-size:14px}
+.btn{border:0;border-radius:14px;padding:15px 20px;font-weight:700;font-size:17px;min-height:54px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn.main{background:var(--sky);color:#fff}
+.btn.main:active{background:var(--sky-deep)}
+.btn.sec{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.btn.wide{width:100%}
+.note{font-size:14px;color:var(--ink-3)}
+
+/* builder layout */
+.build{display:block}
+.pv-wrap{position:sticky;top:46px;z-index:10;background:var(--cloud);padding:10px 0 8px;margin:0 -16px;padding-left:16px;padding-right:16px}
+.pv-cap{font-size:12.5px;color:var(--ink-3);margin:0 0 6px;display:flex;justify-content:space-between}
+.pv{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px -18px rgba(14,34,66,.45)}
+.pv-head{background:var(--sky);color:#fff;padding:7px 12px;display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:700}
+.pv-head span{font-weight:500;font-size:11.5px;opacity:.85}
+.pv-body{padding:8px;max-height:38vh;overflow:auto}
+.pv-wrap.static{position:static}
+.pv-wrap.static .pv-body{max-height:none}
+.qa{padding-top:14px}
+.qa h2{font-size:23px;line-height:1.2;letter-spacing:-.01em;font-weight:800;margin:0 0 6px}
+.qa .sub{color:var(--ink-2);margin:0 0 14px;font-size:15.5px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;min-height:50px;transition:border-color .12s,background .12s}
+.opt .mark{flex:none;width:22px;height:22px;border:2px solid #9aa8bd;border-radius:50%;display:grid;place-items:center;background:#fff}
+.opt.multi .mark{border-radius:6px}
+.opt .mark svg{opacity:0}
+.opt.on{border-color:var(--sky);background:var(--sky-soft)}
+.opt.on .mark{background:var(--sky);border-color:var(--sky)}
+.opt.on .mark svg{opacity:1}
+.opt .tx{flex:1;font-size:16px;line-height:1.3;font-weight:500}
+.opt .tx small{display:block;font-size:13px;color:var(--ink-3);font-weight:400;margin-top:2px}
+.own{margin-top:10px}
+.own input,.field input,.field textarea{width:100%;background:#fff;border:1.5px dashed #b4c0d2;border-radius:12px;padding:12px 14px;font-size:15.5px;outline:none}
+.own input:focus,.field input:focus,.field textarea:focus{border-style:solid;border-color:var(--sky)}
+.field{margin:0 0 14px}
+.field label{display:block;font-weight:700;font-size:15.5px;margin-bottom:6px}
+.field textarea{min-height:80px;resize:vertical}
+
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(255,255,255,.96);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.nav-in{max-width:1040px;margin:0 auto;display:flex;gap:10px}
+.nav .btn.main{flex:1}
+
+/* preview pieces */
+.attn{border:1px solid #f0c4c2;background:#fff8f7;border-radius:10px;padding:6px 9px;margin-bottom:7px}
+.attn h4{margin:0 0 3px;font-size:11px;font-weight:800;color:var(--bad)}
+.attn div{font-size:11.5px;line-height:1.35;display:flex;gap:6px;align-items:baseline}
+.attn i{flex:none;width:6px;height:6px;border-radius:50%;background:var(--bad);transform:translateY(-1px)}
+.attn i.w{background:var(--warn)}
+.attn .more{color:var(--ink-3);font-size:11px}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tile{border:1px solid var(--line);border-radius:10px;padding:6px 8px 7px;min-width:0;background:#fff;position:relative}
+.tile .t{font-size:10.5px;font-weight:600;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .v{font-size:19px;line-height:1.15;font-weight:700}
+.tile .u{font-size:10px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.ok .v{color:var(--ok)} .tile.warn .v{color:var(--warn)} .tile.bad .v{color:var(--bad)}
+.tile.ok,.tile.warn,.tile.bad{border-left-width:4px}
+.tile.ok{border-left-color:var(--ok)} .tile.warn{border-left-color:var(--warn)} .tile.bad{border-left-color:var(--bad)}
+.tile svg.sp{display:block;width:100%;height:18px;margin-top:2px}
+.pop{animation:pop .28s ease}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.pop{animation:none}.prog i{transition:none}}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl td{padding:5px 6px;border-bottom:1px solid var(--line)}
+.tbl td:nth-child(2){text-align:right;font-weight:700;white-space:nowrap}
+.tbl td:nth-child(3){text-align:right;white-space:nowrap;font-size:11px;font-weight:700}
+.empty{padding:22px 10px;text-align:center;color:var(--ink-3);font-size:13px}
+.chip{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.warn{background:var(--warn-soft);color:var(--warn)} .chip.bad{background:var(--bad-soft);color:var(--bad)} .chip.n{background:#edf1f6;color:var(--ink-2)}
+.ord{font-size:12.5px}
+.ord .hd{font-size:11px;color:var(--ink-3);margin-bottom:2px}
+.ord .nm{font-weight:700;font-size:13.5px;line-height:1.3;margin-bottom:4px}
+.route{position:relative;height:30px;margin:6px 8px 2px}
+.route::before{content:"";position:absolute;left:0;right:0;top:8px;height:3px;background:var(--line);border-radius:2px}
+.route::after{content:"";position:absolute;left:0;width:62%;top:8px;height:3px;background:var(--sky);border-radius:2px}
+.route b{position:absolute;top:2px;width:15px;height:15px;border-radius:50%;background:var(--sky);border:3px solid #fff;box-shadow:0 0 0 1.5px var(--sky)}
+.route b.a{left:-4px} .route b.c{left:calc(62% - 7px)} .route b.z{right:-4px;background:#fff;box-shadow:0 0 0 1.5px var(--ink-3)}
+.route-l{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-3);margin-bottom:6px}
+.route-l span:nth-child(2){color:var(--sky);font-weight:700}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:5px}
+.pbtn{flex:1;text-align:center;border-radius:9px;padding:7px 6px;font-size:12px;font-weight:700}
+.pbtn.g{background:var(--ok);color:#fff} .pbtn.o{border:1.5px solid var(--line)}
+.logl{font-size:11.5px;color:var(--ink-2);padding:4px 0;border-top:1px dashed var(--line);margin-top:5px}
+.bars div{display:grid;grid-template-columns:146px 1fr 40px;gap:6px;align-items:center;font-size:11.5px;margin-top:4px}
+.bars span.b{height:9px;border-radius:5px;background:#e3e9f1;position:relative;overflow:hidden}
+.bars span.b i{position:absolute;left:0;top:0;bottom:0;border-radius:5px}
+.bars em{font-style:normal;font-weight:700;text-align:right}
+.lock{background:linear-gradient(170deg,#12408a,#0e2242);color:#fff;border-radius:12px;padding:14px 12px;text-align:center}
+.lock .clock{font-size:34px;line-height:1}
+.lock .d{font-size:12px;opacity:.8;margin-bottom:10px}
+.push{background:rgba(255,255,255,.94);color:var(--ink);border-radius:12px;padding:8px 10px;text-align:left;font-size:12px;line-height:1.35}
+.push b{display:block;font-size:12px}
+.devs{display:flex;gap:8px;justify-content:center;align-items:flex-end;margin:4px 0 8px}
+.dev{border:2px solid #b4c0d2;border-radius:8px;color:#9aa8bd;display:grid;place-items:center;font-size:10.5px;font-weight:700;background:#fff}
+.dev.on{border-color:var(--sky);color:var(--sky);background:var(--sky-soft)}
+.dev.ph{width:46px;height:70px;font-size:9.5px} .dev.pad{width:80px;height:60px} .dev.pc{width:104px;height:64px;border-bottom-width:8px}
+.roles div{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:5px 2px;border-top:1px solid var(--line)}
+.roles div.off{color:#a3aebf}
+.stages{display:flex;flex-direction:column;gap:6px}
+.stage{border:1.5px solid var(--line);border-radius:10px;padding:7px 10px;font-size:12.5px;display:flex;justify-content:space-between;gap:8px;color:var(--ink-3)}
+.stage.on{border-color:var(--sky);background:var(--sky-soft);color:var(--ink);font-weight:700}
+
+/* result */
+.res h2{font-size:28px;line-height:1.12;letter-spacing:-.02em;font-weight:800;margin:22px 0 8px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 14px}
+.card h3{margin:0 0 8px;font-size:17px;font-weight:800}
+.sumlist{margin:0;padding:0;list-style:none;font-size:14.5px}
+.sumlist li{padding:7px 0;border-top:1px solid var(--line);display:flex;flex-direction:column}
+.sumlist li:first-child{border-top:0}
+.sumlist span{color:var(--ink-3);font-size:13px}
+.areas{display:flex;flex-direction:column;gap:8px}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.dq{margin-bottom:16px}
+.dq h4{margin:0 0 8px;font-size:16px;font-weight:700;line-height:1.3}
+
+@media (min-width:900px){
+  .build{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:40px;align-items:start;padding-top:24px}
+  .pv-wrap{order:2;top:70px;margin:0;padding:0;background:none}
+  .pv{border-radius:34px;border:10px solid var(--ink);box-shadow:0 30px 60px -30px rgba(14,34,66,.6)}
+  .pv-body{max-height:none;min-height:420px;padding:12px}
+  .qa{padding-top:0}
+  .qa h2{font-size:28px}
+  .intro h1{font-size:46px}
+  .tile .v{font-size:22px}
+}
+</style>
+</head>
+<body>
+<div class="top"><div class="top-in"><span class="ttl">Соберите экран руководителя</span><span class="cnt" id="cnt"></span></div><div class="prog"><i id="prog"></i></div></div>
+<div class="page" id="app">
+  <div class="intro"><h1>Соберите экран руководителя</h1><p>Страница загружается. Если она не появилась через несколько секунд, откройте ссылку в браузере Safari или Chrome.</p></div>
+</div>
+<div class="nav" id="nav" hidden><div class="nav-in"><button class="btn sec" id="back">Назад</button><button class="btn main" id="next">Далее</button></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+/* Куда отправлять ответы: имя пользователя Telegram без @. Если пусто, откроется выбор чата. */
+var TG_USER='';
+
+/* ---------- шаги ---------- */
+var STEPS=[
+ {id:'blocks',scene:'home',type:'multi',t:'Что показывать на главном экране?',sub:'Нажимайте на блоки. Экран приложения меняется сразу.',
+  opts:[['attn','Требует особого внимания','список всего, что хуже нормы'],['reg','Регулярность полётов'],['safety','Безопасность полётов','события, инциденты, расследования'],['audits','Аудиты'],['orders','Мои поручения'],['hazards','Опасные факторы'],['spi','Показатели безопасности (SPI)'],['fleet','Парк сегодня','в полёте, на земле, на ТО, неисправны'],['flights','Рейсы сегодня','выполнено, в полёте, задержаны, отменены']],
+  def:['attn','reg','safety','orders']},
+ {id:'view',scene:'home',type:'single',t:'В каком виде показывать цифры?',sub:'Посмотрите все три варианта и оставьте тот, который читается быстрее.',
+  opts:[['num','Одна цифра и цвет','зелёный: норма, жёлтый: внимание, красный: плохо'],['chart','Цифра и график за период'],['table','Таблица, как в отчёте']],def:'num'},
+ {id:'period',scene:'home',type:'single',t:'За какой период показывать цифры по умолчанию?',
+  opts:[['today','Сегодня'],['d7','7 дней'],['d30','30 дней'],['month','С начала месяца']],def:'d30'},
+ {id:'attn',scene:'home',type:'multi',t:'Что должно попадать в список «Требует особого внимания»?',
+  opts:[['thr','Показатель хуже порога'],['ord','Просроченное поручение'],['inc','Серьёзный инцидент'],['aud','Несоответствие с истекающим сроком'],['delay','Задержка рейса больше 2 часов'],['aog','Неисправный борт (AOG)']],def:['thr','ord']},
+ {id:'close',scene:'order',type:'single',t:'Кто закрывает поручение?',sub:'На экране приложения одно поручение. Посмотрите, как оно выглядит в каждом варианте.',
+  opts:[['author','Тот, кто поручил, после проверки результата','исполнитель только сдаёт на проверку'],['proof','Исполнитель, но с приложенным подтверждением'],['self','Исполнитель сам, как сейчас']],def:'author'},
+ {id:'overdue',scene:'order',type:'multi',t:'Что происходит, когда срок под угрозой?',
+  opts:[['req','Исполнитель просит перенос и пишет причину','решает тот, кто поручил'],['notify','Тому, кто поручил, сразу приходит уведомление'],['remind','Исполнителю приходит напоминание заранее']],def:['req']},
+ {id:'enter',scene:'order',type:'single',t:'Кто вносит поручения в приложение?',
+  opts:[['self','Сам руководитель','текстом или голосом'],['assist','Помощник или секретарь'],['both','Оба']],def:'both'},
+ {id:'stats',scene:'stats',type:'single',t:'Кому видно, как дирекции выполняют поручения в срок?',
+  opts:[['top','Руководителю компании и руководителю самой дирекции'],['all','Всем руководителям'],['none','Никому, статистика не нужна']],def:'top'},
+ {id:'manual',scene:'truth',type:'single',t:'Цифра введена вручную, а не пришла из системы. Помечать её?',
+  opts:[['always','Да, всегда','видно, кто и когда ввёл'],['ask','Только по нажатию на цифру'],['no','Не помечать']],def:'always'},
+ {id:'morning',scene:'morning',type:'single',t:'Утренняя сводка: как её получать?',
+  opts:[['push','Уведомлением в 8:00 на телефон'],['open','При открытии приложения'],['no','Не нужна']],def:'push'},
+ {id:'devices',scene:'access',type:'multi',t:'На чём этим будут пользоваться?',
+  opts:[['ph','iPhone'],['pad','iPad'],['pc','Компьютер']],def:['ph','pad']},
+ {id:'who',scene:'access',type:'multi',t:'Кому ещё нужен доступ в первую очередь?',
+  opts:[['dep','Заместителям'],['dir','Руководителям дирекций'],['assist','Помощнику']],def:['dir']},
+ {id:'cross',scene:'access',type:'single',t:'Руководитель дирекции видит показатели других дирекций?',
+  opts:[['own','Нет, только свои'],['sum','Только общую картину без подробностей'],['all','Да, все']],def:'own'},
+ {id:'start',scene:'start',type:'single',t:'С чего начать разработку?',sub:'Последний вопрос.',
+  opts:[['orders','С поручений'],['safety','С безопасности полётов'],['reg','С регулярности'],['all','Со всего сразу']],def:'orders'}
+];
+var AREAS=[
+ {id:'ops',t:'Рейсы и регулярность',q:[
+  ['Где сегодня видно положение бортов в реальном времени?',['В программе ПДС или ЦУП','По телефону и рации','Нигде']],
+  ['Где фиксируются причины задержек?',['Коды задержек IATA в программе','Журнал или бумага','В суточном отчёте','Нигде']],
+  ['Как у вас считается регулярность?',['Вылет в пределах 15 минут от расписания','Строго по расписанию','Другой норматив']],
+  ['Целевое значение регулярности утверждено?',['Да','Нет']],
+  ['Сколько воздушных судов в парке и каких типов?',null]]},
+ {id:'safety',t:'Безопасность полётов',q:[
+  ['Какая классификация событий используется?',['По Приложению 13 ИКАО','Внутренняя по РУБП','Обе']],
+  ['Где ведётся учёт событий?',['В программе','В Excel','В журнале']],
+  ['Реестр опасных факторов ведётся?',['Да, в программе','Да, в Excel','Нет']],
+  ['Какая матрица риска принята?',['5×5 по ИКАО','Другая','Не используется']],
+  ['Сколько показателей безопасности (SPI) утверждено и кем?',null],
+  ['По показателям есть цели и уровни тревоги?',['Да, по всем','По части','Нет']],
+  ['Есть ли программа анализа полётных данных (FDM)?',['Да','Нет']]]},
+ {id:'audit',t:'Аудиты и качество',q:[
+  ['Какие виды аудитов учитывать?',['IOSA','Надзорный (регулятор)','Внутренние','Поставщиков'],1],
+  ['Где ведётся учёт аудитов и несоответствий?',['В программе','В Excel','На бумаге']],
+  ['Есть ли служба, которая могла бы выборочно проверять закрытые поручения?',['Да','Нет']]]},
+ {id:'org',t:'Поручения и структура',q:[
+  ['Как сегодня даётся поручение?',['Приказ на бумаге','Устно на совещании','По телефону','В мессенджере'],1],
+  ['Как руководитель узнаёт, что поручение выполнено?',['Докладывают устно','Письменный отчёт','Спрашивает сам','Часто не узнаёт']],
+  ['Сколько дирекций и служб подчинены руководителю напрямую?',null],
+  ['Есть ли утверждённая оргструктура документом?',['Да, можем прислать','Нет']],
+  ['Где можно хранить данные приложения?',['Только на серверах компании','На серверах в Узбекистане','Нужно уточнить у ИТ']]]},
+ {id:'day',t:'Рабочий день руководителя',q:[
+  ['Как руководитель начинает рабочий день?',['Планёрка','Доклад помощника','Читает бумаги']],
+  ['Какие регулярные совещания проводятся?',['Ежедневная планёрка','Комитет по безопасности полётов','Заседание правления','Разбор регулярности'],1],
+  ['Чем он сейчас пользуется для встреч и дел?',['Бумажный ежедневник','Ведёт секретарь','Календарь в телефоне','Ничего']],
+  ['Пользуется ли голосовыми сообщениями?',['Да, постоянно','Иногда','Нет']]]}
+];
+
+/* ---------- состояние ---------- */
+var KEY='eis-konstruktor-v1';
+var S={a:{},own:{},seen:{},deep:{},area:[],name:'',comment:''};
+try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv&&sv.a)S=Object.assign(S,sv)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function val(id){var st=STEPS.filter(function(x){return x.id===id})[0];return S.a[id]!==undefined?S.a[id]:st.def}
+function has(id,k){return val(id).indexOf(k)>=0}
+
+var view='intro', idx=0, lastTiles={};
+var app=document.getElementById('app'),nav=document.getElementById('nav'),back=document.getElementById('back'),next=document.getElementById('next');
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var CHECK='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+var tT;function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(tT);tT=setTimeout(function(){t.classList.remove('on')},2400)}
+
+/* ---------- сцены предпросмотра ---------- */
+var PER={today:'сегодня',d7:'7 дней',d30:'30 дней',month:'с начала месяца'};
+var PI={today:0,d7:1,d30:2,month:3};
+var TILES={
+ reg:{t:'Регулярность',v:['96,8','98,1','98,4','98,6'],u:'% при цели 98',s:['warn','ok','ok','ok'],sp:[5,7,6,8,7,9,8]},
+ safety:{t:'Безопасность',v:['1','9','37','12'],u:'событий',s:['','warn','warn','warn'],sp:[3,5,4,6,5,7,6]},
+ audits:{t:'Аудиты',v:['2','2','2','2'],u:'просрочено',s:['warn','warn','warn','warn'],sp:[2,2,3,3,2,2,2]},
+ orders:{t:'Поручения',v:['4','4','4','4'],u:'просрочено',s:['bad','bad','bad','bad'],sp:[1,2,2,3,3,4,4]},
+ hazards:{t:'Опасные факторы',v:['6','6','6','6'],u:'активных',s:['','','',''],sp:[5,5,6,6,6,6,6]},
+ spi:{t:'Показатели SPI',v:['14','14','14','15'],u:'из 20 в норме',s:['warn','warn','warn','warn'],sp:[16,15,15,14,14,14,14]},
+ fleet:{t:'Парк',v:['31','31','31','31'],u:'из 35 летают',s:['ok','ok','ok','ok'],sp:[30,32,31,33,31,30,31]},
+ flights:{t:'Рейсы',v:['58','497','1 486','512'],u:['из 71 выполнено','за 7 дней','за 30 дней','с начала месяца'],s:['','','',''],sp:[66,71,70,72,69,71,71]}
+};
+var ATT={thr:['b','«Уходы на второй круг» выше порога'],ord:['w','4 поручения просрочены'],inc:['b','Серьёзный инцидент, рейс 271'],aud:['w','Аудит: 2 несоответствия, срок 03.11'],delay:['w','Рейс 271 задержан на 2 ч 15 мин'],aog:['b','Борт 78702 неисправен (AOG)']};
+var SL={ok:'норма',warn:'внимание',bad:'плохо','':''};
+function spark(a,st){var mn=Math.min.apply(0,a),mx=Math.max.apply(0,a),d='';a.forEach(function(v,i){var x=i*(100/(a.length-1)),y=16-((v-mn)/((mx-mn)||1))*14;d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)});
+ var c=st==='ok'?'#1b7f3b':st==='warn'?'#b86a00':st==='bad'?'#c4302b':'#1b5fc4';return '<svg class="sp" viewBox="0 0 100 18" preserveAspectRatio="none"><path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>'}
+function sceneHome(){
+ var bl=val('blocks'),pi=PI[val('period')],vw=val('view'),h='';
+ if(bl.indexOf('attn')>=0){var at=val('attn');h+='<div class="attn"><h4>Требует особого внимания: '+at.length+'</h4>';
+  if(!at.length)h+='<div class="more">Пока сюда ничего не попадает</div>';
+  at.slice(0,3).forEach(function(k){h+='<div><i class="'+(ATT[k][0]==='w'?'w':'')+'"></i><span>'+ATT[k][1]+'</span></div>'});
+  if(at.length>3)h+='<div class="more">и ещё '+(at.length-3)+'</div>';h+='</div>'}
+ var ks=Object.keys(TILES).filter(function(k){return bl.indexOf(k)>=0});
+ if(!ks.length&&bl.indexOf('attn')<0)return '<div class="empty">Экран пуст. Выберите хотя бы один блок.</div>';
+ if(vw==='table'){h+='<table class="tbl">';ks.forEach(function(k){var T=TILES[k],s=T.s[pi],u=Array.isArray(T.u)?T.u[pi]:T.u;h+='<tr><td>'+T.t+'</td><td class="mono">'+T.v[pi]+' <span style="font-weight:400;font-size:10.5px;color:#6b7a93;font-family:Manrope,sans-serif">'+u+'</span></td><td style="color:'+(s==='ok'?'#1b7f3b':s==='warn'?'#b86a00':s==='bad'?'#c4302b':'#6b7a93')+'">'+SL[s]+'</td></tr>'});h+='</table>'}
+ else{h+='<div class="tiles">';ks.forEach(function(k){var T=TILES[k],s=T.s[pi],u=Array.isArray(T.u)?T.u[pi]:T.u;h+='<div class="tile '+s+(lastTiles[k]?'':' pop')+'"><div class="t">'+T.t+'</div><div class="v mono">'+T.v[pi]+'</div><div class="u">'+u+'</div>'+(vw==='chart'?spark(T.sp,s):'')+'</div>'});h+='</div>'}
+ lastTiles={};ks.forEach(function(k){lastTiles[k]=1});
+ return h}
+function sceneOrder(){
+ var c=val('close'),e=val('enter'),od=val('overdue');
+ var who=e==='self'?'Внёс руководитель, голосом':e==='assist'?'Внёс помощник по протоколу':'Внёс помощник, руководитель подтвердил';
+ var h='<div class="ord"><div class="hd">Поручение № 112. '+who+'</div><div class="nm">Провести инструктаж по уходам на второй круг для экипажей A320</div><div class="hd">Исполнитель: Лётная дирекция</div>'+
+ '<div class="route"><b class="a"></b><b class="c"></b><b class="z"></b></div><div class="route-l"><span>выдано 01.11</span><span>сегодня 08.11</span><span>срок 15.11</span></div>';
+ if(c==='author')h+='<div class="row"><span class="chip warn">сдано на проверку</span><span class="chip n">отчёт.pdf</span></div><div class="row"><span class="pbtn g">Принять</span><span class="pbtn o">Вернуть</span></div>';
+ else if(c==='proof')h+='<div class="row"><span class="chip ok">закрыто исполнителем</span><span class="chip n">отчёт.pdf</span></div>';
+ else h+='<div class="row"><span class="chip ok">закрыто исполнителем</span><span class="chip n">без подтверждения</span></div>';
+ if(od.indexOf('req')>=0)h+='<div class="logl">Запрос переноса на 20.11. Причина: экипажи в рейсах. Решение за автором.</div>';
+ if(od.indexOf('notify')>=0)h+='<div class="logl">Автору: уведомление, если срок сорван.</div>';
+ if(od.indexOf('remind')>=0)h+='<div class="logl">Исполнителю: напоминание за 3 дня до срока.</div>';
+ return h+'</div>'}
+function sceneStats(){
+ var s=val('stats');if(s==='none')return '<div class="empty">Статистики по дирекциям нет.</div>';
+ var rows=[['Лётная дирекция',91,'#1b7f3b'],['Дирекция по ТОиР',64,'#c4302b'],['Наземное обеспечение',78,'#b86a00'],['Отдел качества',88,'#1b7f3b']];
+ var h='<div style="font-size:12px;font-weight:700;margin-bottom:2px">Поручения, выполненные в срок</div><div class="bars">';
+ rows.forEach(function(r){h+='<div><span>'+r[0]+'</span><span class="b"><i style="width:'+r[1]+'%;background:'+r[2]+'"></i></span><em class="mono" style="color:'+r[2]+'">'+r[1]+'%</em></div>'});
+ return h+'</div><div class="logl">'+(s==='top'?'Видят: руководитель компании и руководитель своей дирекции.':'Видят: все руководители.')+'</div>'}
+function sceneTruth(){
+ var m=val('manual');
+ var h='<div class="tiles" style="grid-template-columns:1fr 1fr"><div class="tile ok"><div class="t">Регулярность</div><div class="v mono">98,4</div><div class="u">из системы, 07:40</div></div>'+
+ '<div class="tile"><div class="t">Исправность парка</div><div class="v mono">91</div><div class="u">'+(m==='always'?'<span class="chip warn" style="font-size:9.5px;padding:1px 6px">вручную</span>':m==='ask'?'источник: по нажатию':'%')+'</div></div></div>';
+ if(m==='always')h+='<div class="logl">Ввёл: Рахимов Б., Дирекция по ТОиР, 06.11 в 18:20.</div>';
+ if(m==='ask')h+='<div class="logl">После нажатия: «введено вручную, Рахимов Б., 06.11».</div>';
+ if(m==='no')h+='<div class="logl">Обе цифры выглядят одинаково. Откуда вторая, не видно.</div>';
+ return h}
+function sceneMorning(){
+ var m=val('morning');
+ if(m==='push')return '<div class="lock"><div class="clock mono">08:00</div><div class="d">пятница, 8 ноября</div><div class="push"><b>Сводка на утро</b>Регулярность вчера 98,4 %. За ночь 1 событие. Просрочено 4 поручения, 2 ждут вашей приёмки.</div></div>';
+ if(m==='open')return '<div class="ord"><div class="nm">Доброе утро. Сводка на 8 ноября</div><div class="tiles"><div class="tile bad"><div class="t">Требует внимания</div><div class="v mono">3</div></div><div class="tile warn"><div class="t">Ждут приёмки</div><div class="v mono">2</div></div><div class="tile"><div class="t">Встречи</div><div class="v mono">4</div></div></div><div class="logl">Показывается при первом открытии за день.</div></div>';
+ return '<div class="empty">Сводки нет. Приложение открывается сразу на главном экране.</div>'}
+function sceneAccess(){
+ var d=val('devices'),w=val('who'),c=val('cross');
+ var h='<div class="devs"><div class="dev ph'+(d.indexOf('ph')>=0?' on':'')+'">iPhone</div><div class="dev pad'+(d.indexOf('pad')>=0?' on':'')+'">iPad</div><div class="dev pc'+(d.indexOf('pc')>=0?' on':'')+'">Компьютер</div></div><div class="roles">';
+ h+='<div><span>Руководитель компании</span><b>видит всё</b></div>';
+ h+='<div class="'+(w.indexOf('dep')>=0?'':'off')+'"><span>Заместители</span><b>'+(w.indexOf('dep')>=0?'свои направления':'позже')+'</b></div>';
+ h+='<div class="'+(w.indexOf('dir')>=0?'':'off')+'"><span>Руководители дирекций</span><b>'+(w.indexOf('dir')>=0?(c==='own'?'только своё':c==='sum'?'своё и общую картину':'все дирекции'):'позже')+'</b></div>';
+ h+='<div class="'+(w.indexOf('assist')>=0?'':'off')+'"><span>Помощник</span><b>'+(w.indexOf('assist')>=0?'поручения и календарь':'позже')+'</b></div>';
+ return h+'</div>'}
+function sceneStart(){
+ var s=val('start'),L=[['orders','Поручения'],['safety','Безопасность полётов'],['reg','Регулярность']];
+ if(s==='all')return '<div class="stages">'+L.map(function(x){return '<div class="stage on"><span>'+x[1]+'</span><span>этап 1</span></div>'}).join('')+'</div><div class="logl">Все разделы сразу: первый запуск будет позже.</div>';
+ var ord=[s].concat(L.map(function(x){return x[0]}).filter(function(k){return k!==s}));
+ return '<div class="stages">'+ord.map(function(k,i){var n=L.filter(function(x){return x[0]===k})[0][1];return '<div class="stage'+(i===0?' on':'')+'"><span>'+n+'</span><span>этап '+(i+1)+'</span></div>'}).join('')+'</div>'}
+var SCN={home:['Главная',function(){return PER[val('period')]},sceneHome],order:['Поручение',function(){return ''},sceneOrder],stats:['Поручения по дирекциям',function(){return ''},sceneStats],truth:['Откуда цифра',function(){return ''},sceneTruth],morning:['Утро',function(){return ''},sceneMorning],access:['Доступ',function(){return ''},sceneAccess],start:['План запуска',function(){return ''},sceneStart]};
+function pvHTML(scene,cap){var s=SCN[scene];return '<div class="pv-wrap"><div class="pv-cap"><span>'+(cap||'Так это будет выглядеть')+'</span><span>цифры условные</span></div><div class="pv"><div class="pv-head">'+s[0]+'<span id="pvSub">'+s[1]()+'</span></div><div class="pv-body" id="pvBody">'+s[2]()+'</div></div></div>'}
+function pvUpdate(scene){var s=SCN[scene];var b=document.getElementById('pvBody');if(b){b.innerHTML=s[2]();document.getElementById('pvSub').textContent=s[1]()}}
+
+/* ---------- экраны ---------- */
+function render(){
+ var done=STEPS.filter(function(s){return S.seen[s.id]}).length;
+ document.getElementById('prog').style.width=(view==='intro'?0:view==='step'?Math.round(idx/STEPS.length*100):100)+'%';
+ document.getElementById('cnt').textContent=view==='step'?(idx+1)+' из '+STEPS.length:'';
+ nav.hidden=view!=='step';
+ if(view==='intro')app.innerHTML=introHTML(done);
+ else if(view==='step')app.innerHTML=stepHTML();
+ else if(view==='result')app.innerHTML=resultHTML();
+ else if(view==='deep')app.innerHTML=deepHTML();
+ else app.innerHTML=sendHTML();
+ window.scrollTo(0,0);bind();
+}
+function introHTML(done){
+ lastTiles={reg:1,safety:1,orders:1,audits:1,hazards:1,spi:1,fleet:1,flights:1};
+ return '<div class="build"><div class="qa intro"><h1>Соберите экран руководителя</h1>'+
+ '<p>Мы готовим приложение, в котором руководитель видит показатели компании, контролирует поручения и план дня. Каким оно будет, решаете вы.</p>'+
+ '<ul class="how"><li><b>1</b><span>Отвечаете нажатием. Вопросов '+STEPS.length+', это около пяти минут.</span></li><li><b>2</b><span>Экран приложения перестраивается от каждого ответа, результат видно сразу.</span></li><li><b>3</b><span>В конце получаете свой вариант и отправляете его нам одной кнопкой.</span></li></ul>'+
+ '<button class="btn main wide" data-act="begin">'+(done?'Продолжить':'Начать')+'</button>'+
+ (done?'<p class="note" style="margin-top:10px">Ваши ответы сохранены на этом устройстве. <a href="#" data-act="reset" style="color:inherit">Начать заново</a></p>':'')+
+ '</div>'+pvHTML('home','Пример экрана')+'</div>'}
+function stepHTML(){
+ var st=STEPS[idx],v=val(st.id),h='<div class="build">'+pvHTML(st.scene)+'<div class="qa"><h2>'+st.t+'</h2>'+(st.sub?'<p class="sub">'+st.sub+'</p>':(st.type==='multi'?'<p class="sub">Можно выбрать несколько.</p>':''))+'<div class="opts">';
+ st.opts.forEach(function(o){var on=st.type==='multi'?v.indexOf(o[0])>=0:v===o[0];h+='<button class="opt '+st.type+(on?' on':'')+'" data-k="'+o[0]+'" aria-pressed="'+on+'"><span class="mark">'+CHECK+'</span><span class="tx">'+o[1]+(o[2]?'<small>'+o[2]+'</small>':'')+'</span></button>'});
+ h+='</div><div class="own"><input type="text" id="own" placeholder="Свой вариант или уточнение" value="'+esc(S.own[st.id]||'')+'"></div></div></div>';
+ return h}
+function label(st,k){var o=st.opts.filter(function(x){return x[0]===k})[0];return o?o[1]:k}
+function ansText(st){var v=val(st.id),t=st.type==='multi'?(v.length?v.map(function(k){return label(st,k)}).join('; '):'ничего'):label(st,v);if(S.own[st.id]&&S.own[st.id].trim())t+='. Свой ответ: '+S.own[st.id].trim();return t}
+function resultHTML(){
+ lastTiles={reg:1,safety:1,orders:1,audits:1,hazards:1,spi:1,fleet:1,flights:1};
+ return '<div class="build">'+pvHTML('home','Ваш главный экран').replace('pv-wrap','pv-wrap static')+'<div class="qa res"><h2>Ваш экран готов</h2><p class="sub">Так выглядит главный экран по вашим ответам. Ниже все решения списком. Любое можно поменять.</p>'+
+ '<div class="card"><ul class="sumlist">'+STEPS.map(function(st,i){return '<li><span>'+st.t+'</span><a href="#" data-goto="'+i+'" style="color:inherit;text-decoration:none"><b>'+esc(ansText(st))+'</b></a></li>'}).join('')+'</ul></div>'+
+ '<div class="card"><h3>Есть ещё две минуты?</h3><p class="sub" style="margin-bottom:12px">Несколько вопросов о том, как дела обстоят сейчас. Выберите, что по вашей части. Можно несколько или ни одного.</p><div class="areas opts">'+
+ AREAS.map(function(a){var on=S.area.indexOf(a.id)>=0;return '<button class="opt multi'+(on?' on':'')+'" data-area="'+a.id+'"><span class="mark">'+CHECK+'</span><span class="tx">'+a.t+'<small>'+a.q.length+' '+(a.q.length<5?'вопроса':'вопросов')+'</small></span></button>'}).join('')+'</div></div>'+
+ '<button class="btn main wide" data-act="afterres">Дальше</button></div></div>'}
+function deepHTML(){
+ var h='<div class="qa" style="max-width:640px;padding-top:22px"><h2>Как сейчас</h2><p class="sub">Отвечайте только на то, что знаете точно. Остальное можно пропустить.</p>';
+ AREAS.filter(function(a){return S.area.indexOf(a.id)>=0}).forEach(function(a){
+  h+='<div class="card"><h3>'+a.t+'</h3>';
+  a.q.forEach(function(q,qi){var id=a.id+qi,d=S.deep[id]||{};h+='<div class="dq" data-dq="'+id+'" data-multi="'+(q[2]?1:0)+'"><h4>'+q[0]+'</h4>';
+   if(q[1]){h+='<div class="opts">';q[1].forEach(function(o,oi){var on=(d.v||[]).indexOf(oi)>=0;h+='<button class="opt '+(q[2]?'multi':'single')+(on?' on':'')+'" data-o="'+oi+'"><span class="mark">'+CHECK+'</span><span class="tx">'+o+'</span></button>'});h+='</div>'}
+   h+='<div class="own"><input type="text" placeholder="'+(q[1]?'Свой вариант или уточнение':'Ваш ответ')+'" value="'+esc(d.o||'')+'"></div></div>'});
+  h+='</div>'});
+ return h+'<button class="btn main wide" data-act="tosend">Дальше</button><p style="text-align:center;margin-top:10px"><a href="#" data-act="toresult" class="note">Назад к экрану</a></p></div>'}
+function sendHTML(){
+ return '<div class="qa res" style="max-width:640px"><h2>Отправьте ваш вариант</h2><p class="sub">Два необязательных поля и одна кнопка.</p>'+
+ '<div class="card"><div class="field"><label for="nm">Как бы вы назвали это приложение?</label><input id="nm" type="text" placeholder="Необязательно" value="'+esc(S.name)+'"></div>'+
+ '<div class="field" style="margin:0"><label for="cm">Что ещё важно учесть?</label><textarea id="cm" placeholder="Необязательно">'+esc(S.comment)+'</textarea></div></div>'+
+ '<button class="btn main wide" data-act="send">Отправить ответы в Telegram</button>'+
+ '<button class="btn sec wide" data-act="copy" style="margin-top:10px">Скопировать ответы</button>'+
+ '<p class="note" style="margin-top:12px">Кнопка откроет Telegram с готовым сообщением. Выберите того, кто прислал вам ссылку, и нажмите «Отправить». Если Telegram не открылся, скопируйте ответы и вставьте в чат.</p>'+
+ '<div class="card" style="margin-top:14px"><h3>Что будет дальше</h3><p class="sub" style="margin:0">По ответам мы составим техническое задание и нарисуем первый макет. Затем покажем его вам.</p></div>'+
+ '<p style="text-align:center"><a href="#" data-act="toresult" class="note">Назад к экрану</a></p></div>'}
+function report(){
+ var L=['Экран руководителя: мой вариант',''];
+ STEPS.forEach(function(st,i){L.push((i+1)+'. '+st.t+' '+ansText(st))});
+ AREAS.filter(function(a){return S.area.indexOf(a.id)>=0}).forEach(function(a){var rows=[];a.q.forEach(function(q,qi){var d=S.deep[a.id+qi];if(!d)return;var t=(d.v||[]).map(function(i){return q[1][i]}).join('; ');if(d.o&&d.o.trim())t+=(t?'. ':'')+d.o.trim();if(t)rows.push('- '+q[0]+' '+t)});if(rows.length){L.push('',a.t+':');L=L.concat(rows)}});
+ if(S.name.trim())L.push('','Название: '+S.name.trim());
+ if(S.comment.trim())L.push('Комментарий: '+S.comment.trim());
+ return L.join('\n')}
+
+/* ---------- события ---------- */
+function bind(){
+ app.querySelectorAll('[data-act]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();act(b.dataset.act)})});
+ app.querySelectorAll('[data-goto]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();idx=+b.dataset.goto;view='step';render()})});
+ if(view==='step'){var st=STEPS[idx];
+  app.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.k,v=val(st.id);
+   if(st.type==='multi'){v=v.slice();var i=v.indexOf(k);if(i>=0)v.splice(i,1);else v.push(k);S.a[st.id]=v;b.classList.toggle('on');b.setAttribute('aria-pressed',b.classList.contains('on'))}
+   else{S.a[st.id]=k;app.querySelectorAll('.opt').forEach(function(x){x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',x===b)})}
+   save();pvUpdate(st.scene)})});
+  var own=document.getElementById('own');own.addEventListener('input',function(){S.own[st.id]=own.value;save()})}
+ if(view==='result')app.querySelectorAll('[data-area]').forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.area,i=S.area.indexOf(k);if(i>=0)S.area.splice(i,1);else S.area.push(k);b.classList.toggle('on');save()})});
+ if(view==='deep')app.querySelectorAll('.dq').forEach(function(q){var id=q.dataset.dq,multi=q.dataset.multi==='1';
+  q.querySelectorAll('.opt').forEach(function(b){b.addEventListener('click',function(){var d=S.deep[id]||(S.deep[id]={v:[]}),o=+b.dataset.o;d.v=d.v||[];
+   if(multi){var i=d.v.indexOf(o);if(i>=0)d.v.splice(i,1);else d.v.push(o);b.classList.toggle('on')}
+   else{var was=d.v[0]===o;d.v=was?[]:[o];q.querySelectorAll('.opt').forEach(function(x){x.classList.toggle('on',x===b&&!was)})}
+   save()})});
+  var inp=q.querySelector('input');inp.addEventListener('input',function(){var d=S.deep[id]||(S.deep[id]={v:[]});d.o=inp.value;save()})});
+ if(view==='send'){var nm=document.getElementById('nm'),cm=document.getElementById('cm');nm.addEventListener('input',function(){S.name=nm.value;save()});cm.addEventListener('input',function(){S.comment=cm.value;save()})}
+}
+function act(a){
+ if(a==='begin'){var f=-1;for(var i=0;i<STEPS.length;i++){if(!S.seen[STEPS[i].id]){f=i;break}}if(f<0){view='result'}else{view='step';idx=f}lastTiles={};render()}
+ else if(a==='reset'){S={a:{},own:{},seen:{},deep:{},area:[],name:'',comment:''};save();render()}
+ else if(a==='afterres'){view=S.area.length?'deep':'send';render()}
+ else if(a==='tosend'){view='send';render()}
+ else if(a==='toresult'){view='result';render()}
+ else if(a==='copy'){copy()}
+ else if(a==='send'){var t=report();var url=TG_USER?'https://t.me/'+TG_USER+'?text='+encodeURIComponent(t):'https://t.me/share/url?url='+encodeURIComponent(location.href.split('#')[0])+'&text='+encodeURIComponent(t);
+  try{navigator.clipboard.writeText(t)}catch(e){}
+  window.open(url,'_blank')||(location.href=url)}
+}
+function copy(){var t=report();
+ function fb(){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Скопировано. Вставьте в Telegram')}catch(e){toast('Не удалось скопировать')}ta.remove()}
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast('Скопировано. Вставьте в Telegram')},fb);else fb()}
+next.addEventListener('click',function(){var st=STEPS[idx];S.seen[st.id]=1;if(S.a[st.id]===undefined)S.a[st.id]=st.def;save();if(idx<STEPS.length-1){idx++;lastTiles=STEPS[idx].scene==='home'?lastTiles:{};render()}else{view='result';render()}});
+back.addEventListener('click',function(){if(idx>0){idx--;render()}else{view='intro';render()}});
+render();
+})();
+</script>
+</body>
+</html>

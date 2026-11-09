@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Приложение для руководителя: анкета</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#eef3f9; --surface:#ffffff; --line:#d6dfeb; --line-2:#b4c0d2;
+  --fg:#0e2242; --fg-2:#44546f; --fg-3:#6b7a93;
+  --brand:#1b5fc4; --brand-2:#2f6fd6; --brand-soft:#e6eefb; --brand-ink:#12408a;
+  --ok:#1a7f37; --ok-soft:#e6f4ea; --warn:#a85f00; --warn-soft:#fff4e0; --bad:#c62828; --bad-soft:#fdecec;
+  --r:14px; --r-s:10px;
+  --shadow:0 1px 2px rgba(15,23,42,.05),0 8px 24px -12px rgba(15,23,42,.18);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:Manrope,-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+input,textarea{font:inherit}
+.num{font-variant-numeric:tabular-nums}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:5;background:rgba(243,246,250,.92);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:720px;margin:0 auto;padding:12px 18px 10px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;color:var(--brand-ink);letter-spacing:.01em;white-space:nowrap}
+.brand svg{flex:none}
+.step{margin-left:auto;font-size:13px;color:var(--fg-3);white-space:nowrap}
+.bar{height:4px;background:#e2e8f0}
+.bar i{display:block;height:100%;width:0;background:var(--brand);transition:width .35s ease}
+.save{font-size:12px;color:var(--fg-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw}
+@media (max-width:520px){.brand span{display:none}.step{display:none}}
+.save.ok{color:var(--ok)}
+.save.warn{color:var(--warn)}
+
+.wrap{max-width:720px;margin:0 auto;padding:22px 18px 110px}
+.view{display:none}
+.view.on{display:block;animation:in .25s ease}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.eyebrow{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+h1{font-size:30px;line-height:1.15;letter-spacing:-.015em;margin:6px 0 12px;font-weight:800}
+h2{font-size:25px;line-height:1.2;letter-spacing:-.01em;margin:6px 0 10px;font-weight:800}
+h3{font-size:16px;margin:0 0 8px;font-weight:700}
+p{margin:0 0 12px;color:var(--fg-2)}
+p.lead{font-size:18px;color:var(--fg)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin:0 0 16px}
+.card.soft{background:var(--brand-soft);border-color:#cfe0fa;box-shadow:none}
+.propose h3{display:flex;align-items:center;gap:8px}
+.propose ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.propose li{display:flex;gap:10px;align-items:flex-start;font-size:15.5px;color:var(--fg)}
+.propose li .dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--brand);margin-top:9px}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.propose li .tag{display:block;width:max-content;margin:4px 0 0 0}
+.tag.now{background:var(--ok-soft);color:var(--ok)}
+.tag.sys{background:var(--warn-soft);color:var(--warn)}
+.legend{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--fg-3);margin-top:12px;padding-top:10px;border-top:1px solid #cfe0fa}
+.legend span{display:block;line-height:1.45}
+.legend .tag{margin:0 6px 0 0}
+
+/* sketch */
+.sketch{margin:14px 0 4px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.sketch svg{width:100%;max-width:420px;height:auto;display:block}
+.sketch .cap{font-size:12.5px;color:var(--fg-3)}
+
+/* questions */
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px 14px;box-shadow:var(--shadow);margin:0 0 14px}
+.q .qh{display:flex;gap:10px;align-items:baseline;margin-bottom:10px}
+.q .n{flex:none;font-size:12.5px;font-weight:800;color:var(--brand);background:var(--brand-soft);border-radius:8px;padding:2px 8px;line-height:1.5}
+.q .t{font-weight:600;font-size:17px;line-height:1.35}
+.q .hint{font-size:13px;color:var(--fg-3);margin:-4px 0 10px 0}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--line-2);border-radius:var(--r-s);background:#fff;cursor:pointer;text-align:left;width:100%;min-height:48px;transition:border-color .15s,background .15s}
+.opt:hover{border-color:#94a3b8}
+.opt .box{flex:none;width:22px;height:22px;border:2px solid #94a3b8;border-radius:50%;display:grid;place-items:center;background:#fff;transition:all .15s}
+.opt.multi .box{border-radius:6px}
+.opt .box svg{opacity:0;transform:scale(.6);transition:all .15s}
+.opt.sel{border-color:var(--brand);background:var(--brand-soft)}
+.opt.sel .box{background:var(--brand);border-color:var(--brand)}
+.opt.sel .box svg{opacity:1;transform:none}
+.opt .lbl{flex:1;font-size:16px;line-height:1.3}
+.opt.dis{opacity:.45;cursor:not-allowed}
+.sub{margin:-2px 0 6px 34px}
+.sub input{width:100%;padding:10px 12px;border:1.5px solid var(--line-2);border-radius:8px;font-size:15px;outline:none}
+.sub input:focus{border-color:var(--brand)}
+.free textarea,.free input{width:100%;padding:12px 14px;border:1.5px solid var(--line-2);border-radius:var(--r-s);font-size:16px;outline:none;background:#fff}
+.free textarea{min-height:88px;resize:vertical}
+.free.own{margin-top:10px}
+.free.own input{border-style:dashed;font-size:15px;padding:11px 14px}
+.free.own input:focus{border-style:solid}
+.free textarea:focus,.free input:focus{border-color:var(--brand)}
+.q.done{border-color:#bcd0f0}
+.q .ok-mark{margin-left:auto;font-size:12px;color:var(--ok);font-weight:700;white-space:nowrap}
+
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:10px 18px calc(10px + env(safe-area-inset-bottom))}
+.nav-in{max-width:720px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.btn{border:0;border-radius:12px;padding:14px 18px;font-weight:700;font-size:16px;cursor:pointer;min-height:50px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .08s,background .15s}
+.btn:active{transform:scale(.98)}
+.btn.main{background:var(--brand);color:#fff;flex:1}
+.btn.main:hover{background:var(--brand-ink)}
+.btn.sec{background:#fff;border:1.5px solid var(--line-2);color:var(--fg)}
+.btn.ghost{background:transparent;color:var(--fg-3);font-weight:600;padding:12px 10px}
+.btn.big{width:100%;font-size:17px;min-height:56px}
+.skip{margin-top:4px;text-align:center}
+.skip button{background:none;border:0;color:var(--fg-3);font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:8px}
+
+/* start */
+.hero{background:linear-gradient(160deg,#0b3a86 0%,#1757b8 55%,#2f6fd6 100%);color:#fff;border-radius:18px;padding:24px 22px;margin-bottom:18px;position:relative;overflow:hidden}
+.hero h1{color:#fff;margin-top:8px}
+.hero p{color:rgba(255,255,255,.85)}
+.hero .eyebrow{color:#bcd6ff}
+.hero svg.plane{position:absolute;right:-10px;top:-6px;opacity:.14;width:190px;height:190px}
+.three{display:flex;flex-direction:column;gap:8px;margin:14px 0 4px}
+.three div{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 14px;font-size:14px;line-height:1.35}
+.three b{display:block;font-size:18px;margin-bottom:2px}
+.toc{display:flex;flex-direction:column;gap:6px}
+.toc button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+.toc button:hover{border-color:#94a3b8}
+.toc .i{flex:none;width:30px;height:30px;border-radius:9px;background:var(--brand-soft);color:var(--brand);font-weight:800;font-size:13px;display:grid;place-items:center}
+.toc .tt{flex:1;font-weight:600;font-size:15.5px}
+.toc .st{font-size:12.5px;color:var(--fg-3);white-space:nowrap}
+.toc .st.done{color:var(--ok);font-weight:700}
+.toc .st.skip{color:var(--warn);font-weight:700}
+.note{font-size:13.5px;color:var(--fg-3)}
+
+/* final */
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.sum div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.sum b{display:block;font-size:26px;font-weight:800}
+.sum span{font-size:12.5px;color:var(--fg-3)}
+.ans{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;white-space:pre-wrap;max-height:260px;overflow:auto;color:var(--fg-2);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);background:#0f172a;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:all .25s;z-index:9;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.secnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:13px;color:var(--fg-3)}
+.secnav a{color:var(--brand);text-decoration:none;font-weight:600;cursor:pointer}
+@media (max-width:480px){h1{font-size:26px}h2{font-size:22px}}
+.top{background:#0e2242;border-bottom:0;backdrop-filter:none}
+.top .brand{color:#fff;text-decoration:none;font-size:14px}
+.top .step{color:rgba(255,255,255,.75)}
+.bar{background:rgba(255,255,255,.15)} .bar i{background:#6fb0ff}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:8px 14px;background:#fff;border-bottom:1px solid var(--line);scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--fg-2);white-space:nowrap}
+.chips button.cur{background:var(--brand);border-color:var(--brand);color:#fff}
+.chips button.done:not(.cur){border-color:#9fd0ae;color:var(--ok)}
+.chips button.skip:not(.cur){color:#a3aebf}
+@media (max-width:520px){.top .brand span{display:inline}.step{display:block}}
+.eyebrow{text-transform:none;letter-spacing:0;font-size:14px}
+.hero{background:#0e2242}
+.hero .eyebrow{color:#9fc4ff}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-in"><a class="brand" href="./">Анкета по разделам</a><div class="step" id="stepLbl"></div></div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<div class="wrap" id="app"><div class="card"><h2 style="font-size:22px">Страница загружается</h2><p style="margin:0">Если анкета не появилась через несколько секунд, откройте ссылку в браузере Safari или Chrome.</p></div></div>
+
+<div class="nav" id="nav" hidden>
+  <div class="nav-in">
+    <button class="btn sec" id="btnBack">Назад</button>
+    <button class="btn main" id="btnNext">Далее</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ========= DATA ========= */
+const SECTIONS = [
+ {id:'s1', title:'Главная страница', short:'Главная',
+  intro:'Первый экран приложения. На нём главные цифры по всем направлениям и отдельный список того, что хуже нормы.',
+  propose:[
+   ['Список «Требует особого внимания»: всё, что хуже нормы','now'],
+   ['Регулярность полётов','now'],['Безопасность: события, инциденты, серьёзные инциденты, расследования','now'],
+   ['Аудиты: запланировано, выполнено, просрочено, не закрыто','now'],
+   ['Мои поручения: всего, выполнено, не выполнено, просрочено','now'],
+   ['Опасные факторы: всего, активные, ТОП по риску','now'],
+   ['Показатели безопасности (SPI): сколько в норме из общего числа','now'],
+   ['Парк сегодня: в полёте, на земле, на ТО, неисправны','sys'],
+   ['Рейсы сегодня: выполнено, в полёте, задержаны, отменены','sys']],
+  sketch:'home'},
+ {id:'s2', title:'Рейсы и парк сегодня', short:'Рейсы',
+  intro:'Рейсы текущего дня и состояние каждого борта. У задержанного рейса сразу написана причина.',
+  propose:[['Список рейсов дня: номер, маршрут, борт, план и факт, статус, причина задержки словами','sys'],
+   ['Состояние парка: каждый борт и его статус','sys'],['Положение бортов на карте','sys']],
+  sketch:'flights'},
+ {id:'s3', title:'Регулярность полётов', short:'Регулярность',
+  intro:'Регулярность за период, динамика по дням и причины задержек.',
+  propose:[['Регулярность за период и цель','now'],['График по дням за 30 дней','now'],
+   ['Задержки, отмены, уходы на запасной','now'],['Причины задержек по группам','sys'],['Худшие направления и аэропорты','sys']],
+  sketch:'reg'},
+ {id:'s4', title:'Безопасность полётов', short:'Безопасность',
+  intro:'События, опасные факторы и показатели безопасности с порогами. Три вкладки на одном экране.',
+  propose:[['События по классам за период и динамика по месяцам','now'],['Открытые и просроченные расследования','now'],
+   ['Реестр опасных факторов с матрицей риска и ТОП по оценке','now'],['Сетка показателей безопасности: у каждого цель и уровень тревоги','now'],
+   ['Данные анализа полётной информации','sys']],
+  sketch:'safety'},
+ {id:'s5', title:'Аудиты', short:'Аудиты',
+  intro:'План аудитов на год, несоответствия и сроки их закрытия.',
+  propose:[['План аудитов и статусы','now'],['Несоответствия: ответственный, срок, статус','now'],['Отдельный список просроченных корректирующих мер','now']],
+  sketch:'audits'},
+ {id:'s6', title:'Поручения', short:'Поручения',
+  intro:'Поручения от выдачи до приёмки: исполнитель, срок, результат, текущий статус.',
+  propose:[['Карточка: текст, исполнитель, срок, основание (приказ, протокол)','now'],
+   ['Исполнитель сдаёт результат файлом, автор принимает или возвращает','now'],
+   ['Перенос срока только по запросу с указанием причины','now'],['Статистика по дирекциям: в срок, просрочено','now']],
+  sketch:'orders'},
+ {id:'s7', title:'Карта процессов', short:'Карта',
+  intro:'Дирекции и службы с руководителями и текущими цифрами по каждой.',
+  propose:[['Дирекции и службы с руководителем','now'],['По каждой: открытые поручения, просрочки, несоответствия, события','now']],
+  sketch:'map'},
+ {id:'s8', title:'Правда в цифрах', short:'Цифры',
+  intro:'Под каждой цифрой указано, откуда она взята и когда обновлена. Цифры из систем и цифры, введённые вручную, помечены по-разному.',
+  propose:[['Источник и время обновления под каждой цифрой','now'],['Ручной ввод помечен: кто и когда ввёл','now'],['История изменений не стирается','now']],
+  sketch:'truth'},
+ {id:'s9', title:'Мой день', short:'Мой день',
+  intro:'Утренняя сводка, встречи и дела руководителя.',
+  propose:[['Брифинг: три цифры дня и что требует решения','now'],['Встречи и личные дела','now'],
+   ['Список «Жду от других»: что обещали и к какому сроку','now'],['Повестка совещания собирается из отклонений за период','now']],
+  sketch:'day'},
+ {id:'s10', title:'Устройство и доступ', short:'Доступ',
+  intro:'На каких устройствах и у кого будет доступ.',
+  propose:null, sketch:null},
+ {id:'s11', title:'Дальше', short:'Дальше',
+  intro:'Что добавить позже и с чего начать.',
+  propose:null, sketch:null},
+];
+
+/* q: {id, sec, t, type:'single'|'multi'|'number'|'text', opts, max, hint, optional}
+   opt: string | {t, input} */
+const Q = [
+ {id:1, sec:'s1', t:'Какие блоки оставить на главной странице?', type:'multi',
+  opts:['Требует особого внимания','Регулярность полётов','Безопасность полётов','Аудиты','Мои поручения','Опасные факторы','Показатели безопасности (SPI)','Парк сегодня','Рейсы сегодня']},
+ {id:2, sec:'s1', t:'За какой период показывать цифры по умолчанию?', type:'single', opts:['Сегодня','7 дней','30 дней','С начала месяца']},
+ {id:3, sec:'s1', t:'Что должно попадать в «Требует особого внимания»?', type:'multi',
+  opts:['Показатель хуже порога','Просроченное поручение','Серьёзный инцидент','Несоответствие с истекающим сроком','Задержка рейса больше 2 часов','Неисправный борт (AOG)']},
+
+ {id:4, sec:'s2', t:'Где сегодня видно положение бортов в реальном времени?', type:'single',
+  opts:[{t:'В программе ПДС / ЦУП',input:'какой'},'По телефону и рации','Нигде']},
+ {id:5, sec:'s2', t:'Где фиксируются причины задержек?', type:'single',
+  opts:['Коды задержек IATA в программе','Журнал или бумага','В суточном отчёте','Нигде']},
+ {id:6, sec:'s2', t:'Что показывать по каждому рейсу?', type:'multi',
+  opts:['План и факт вылета и прилёта','Борт','Командир ВС','Причина задержки','Пассажиров на борту','Статус: в полёте, на земле, задержан, отменён']},
+ {id:7, sec:'s2', t:'Сколько воздушных судов в парке и каких типов?', type:'text', hint:'Например: 35 (A320neo, 787-8, A330)'},
+ {id:8, sec:'s2', t:'Какие статусы борта нужны?', type:'multi', opts:['В полёте','На земле, готов','Плановое ТО','Неисправен (AOG)','Резерв']},
+
+ {id:9, sec:'s3', t:'Как у вас считается регулярность?', type:'single',
+  opts:['Вылет в пределах 15 минут от расписания','Строго по расписанию',{t:'Другой норматив',input:'какой'}]},
+ {id:10, sec:'s3', t:'Целевое значение регулярности утверждено?', type:'single', opts:[{t:'Да',input:'сколько %'},'Нет']},
+ {id:11, sec:'s3', t:'В каких разрезах нужна регулярность?', type:'multi', opts:['По дням','По аэропортам','По направлениям','По типам ВС','По причинам']},
+ {id:12, sec:'s3', t:'Какие группы причин показывать на графике?', type:'multi',
+  opts:['Технические','Экипаж','Аэропорт и наземное обслуживание','УВД','Погода','Коммерческие','Поздний прилёт предыдущего рейса']},
+ {id:13, sec:'s3', t:'Отмены и уходы на запасной считать отдельными показателями?', type:'single', opts:['Да, отдельно','Нет, внутри регулярности']},
+
+ {id:14, sec:'s4', t:'Какая классификация событий используется?', type:'single',
+  opts:['По Приложению 13 ИКАО: происшествие, серьёзный инцидент, инцидент',{t:'Внутренняя по РУБП',input:'какие классы'},'Обе']},
+ {id:15, sec:'s4', t:'Где ведётся учёт событий?', type:'single', opts:[{t:'Программа',input:'какая'},'Excel','Журнал']},
+ {id:16, sec:'s4', t:'Реестр опасных факторов ведётся?', type:'single', opts:['Да, в программе','Да, в Excel','Нет']},
+ {id:17, sec:'s4', t:'Какая матрица риска принята?', type:'single', opts:['5×5 по ИКАО',{t:'Другая',input:'размер'},'Не используется']},
+ {id:18, sec:'s4', t:'Сколько показателей безопасности (SPI) утверждено и кем?', type:'text', hint:'Например: 20, утверждены службой БП'},
+ {id:19, sec:'s4', t:'По показателям есть цели и уровни тревоги?', type:'single', opts:['Да, по всем','По части','Нет']},
+ {id:20, sec:'s4', t:'Есть ли программа анализа полётных данных (FDM)?', type:'single', opts:[{t:'Да',input:'какая'},'Нет']},
+ {id:21, sec:'s4', t:'Какие показатели есть в вашем перечне?', type:'multi',
+  opts:['Уходы на второй круг','Нестабилизированные заходы','Срабатывания TCAS','Срабатывания GPWS','Столкновения с птицами','События на ВПП','Грубые посадки','Превышения по данным FDM','Ошибки при ТО','Повреждения наземной техникой']},
+ {id:22, sec:'s4', t:'Что показывать по служебным расследованиям?', type:'multi', opts:['Открытые','Просроченные','Срок до завершения','Ответственный']},
+
+ {id:23, sec:'s5', t:'Какие виды аудитов учитывать?', type:'multi', opts:['IOSA','Надзорный (регулятор)','Внутренние','Поставщиков']},
+ {id:24, sec:'s5', t:'Какие статусы несоответствия у вас используются?', type:'multi', opts:['Открыто','Меры назначены','Выполнено','Проверено и закрыто','Просрочено']},
+ {id:25, sec:'s5', t:'Где ведётся учёт аудитов?', type:'single', opts:[{t:'Программа',input:'какая'},'Excel','Бумага']},
+
+ {id:26, sec:'s6', t:'Как сегодня даётся поручение?', type:'multi', opts:['Приказ на бумаге','Устно на совещании','По телефону','В мессенджере']},
+ {id:27, sec:'s6', t:'Как руководитель узнаёт, что поручение выполнено?', type:'single', opts:['Докладывают устно','Письменный отчёт','Спрашивает сам','Часто не узнаёт вовсе']},
+ {id:28, sec:'s6', t:'Кто должен вносить поручения в приложение?', type:'single', opts:['Сам руководитель','Помощник или секретарь','Оба']},
+ {id:29, sec:'s6', t:'Может ли исполнитель сам закрыть поручение?', type:'single',
+  opts:['Нет. Закрывает тот, кто поручил, после проверки результата','Да, но с приложенным подтверждением','Да, как сейчас']},
+ {id:30, sec:'s6', t:'Что должно происходить при срыве срока?', type:'multi',
+  opts:['Исполнитель просит перенос с причиной, решает тот, кто поручил','Тому, кто поручил, сразу приходит уведомление','Исполнителю приходит напоминание заранее']},
+ {id:31, sec:'s6', t:'Какие поля поручения обязательны?', type:'multi', opts:['Исполнитель','Соисполнители','Срок','Приоритет','Основание (приказ, протокол)','Контролёр','Файл результата']},
+ {id:32, sec:'s6', t:'Кому видна статистика «в срок / просрочено» по дирекциям?', type:'single', opts:['Руководителю компании и руководителю дирекции','Всем руководителям','Никому']},
+
+ {id:33, sec:'s7', t:'Сколько дирекций и служб подчинены напрямую?', type:'number'},
+ {id:34, sec:'s7', t:'Есть ли утверждённая оргструктура или карта процессов документом?', type:'single', opts:['Да, можем прислать','Нет']},
+ {id:35, sec:'s7', t:'Что показывать на каждой дирекции?', type:'multi', opts:['Руководитель','Открытые поручения','Просрочки','Несоответствия','События','Показатели в норме']},
+
+ {id:36, sec:'s8', t:'Цифра, введённая вручную, должна быть помечена?', type:'single', opts:['Всегда','Только если спросить','Не важно']},
+ {id:37, sec:'s8', t:'Есть ли служба, которая могла бы выборочно проверять закрытые поручения?', type:'single', opts:[{t:'Да',input:'какая'},'Нет']},
+
+ {id:38, sec:'s9', t:'Как руководитель начинает рабочий день?', type:'single', opts:['Планёрка','Доклад помощника','Читает бумаги']},
+ {id:39, sec:'s9', t:'Какие регулярные совещания проводятся?', type:'multi',
+  opts:['Ежедневная планёрка','Комитет по безопасности полётов','Заседание правления','Разбор регулярности']},
+ {id:40, sec:'s9', t:'Повестку комитета по безопасности собирать автоматически из отклонений за период?', type:'single', opts:['Да','Нет']},
+ {id:41, sec:'s9', t:'Утренняя сводка: когда и как?', type:'single', opts:['Уведомление в 8:00 на телефон','При открытии приложения','Не нужна']},
+ {id:42, sec:'s9', t:'Чем руководитель сейчас пользуется для встреч и дел?', type:'single', opts:['Бумажный ежедневник','Ведёт секретарь','Календарь в телефоне','Ничего']},
+ {id:43, sec:'s9', t:'Пользуется ли голосовыми сообщениями в мессенджерах?', type:'single', opts:['Да, постоянно','Иногда','Нет']},
+
+ {id:44, sec:'s10', t:'На чём будет использоваться приложение?', type:'multi', opts:['iPhone','iPad','Компьютер']},
+ {id:45, sec:'s10', t:'Кому ещё нужен доступ в первую очередь?', type:'multi', opts:['Заместителям','Руководителям дирекций','Помощнику','Пока только тому, кто даёт поручения']},
+ {id:46, sec:'s10', t:'Должен ли руководитель дирекции видеть показатели других дирекций?', type:'single', opts:['Нет, только свои','Да, все','Только общую картину без подробностей']},
+ {id:47, sec:'s10', t:'Где можно хранить данные приложения?', type:'single', opts:['Только на серверах компании','На серверах в Узбекистане','Не знаю, нужно уточнить у ИТ']},
+
+ {id:48, sec:'s11', t:'Какие направления добавить вторым этапом?', type:'multi', opts:['Техническое обслуживание','Коммерция','Финансы','Персонал и экипажи','Наземное обслуживание','Никакие']},
+ {id:49, sec:'s11', t:'С чего начать?', type:'single', opts:['С поручений','С безопасности полётов','С регулярности','Со всего сразу']},
+ {id:50, sec:'s11', t:'Как бы вы назвали приложение?', type:'text', optional:true, hint:'Необязательно. Одно-два слова, можно несколько вариантов'},
+];
+
+/* ========= STATE ========= */
+const LS_KEY='eis-survey-v1';
+let state={answers:{}, skipped:[], rid:null, updatedAt:0};
+try{const s=JSON.parse(localStorage.getItem(LS_KEY)||'null'); if(s&&s.answers) state=Object.assign(state,s);}catch(e){}
+if(!state.rid){state.rid='r'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-3); persistLocal();}
+
+function persistLocal(){try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}}
+
+/* db */
+let writeOk=false;
+function touched(){state.updatedAt=Date.now();persistLocal();}
+
+/* ========= HELPERS ========= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const optT=o=>typeof o==='string'?o:o.t;
+const optIn=o=>typeof o==='string'?null:o.input;
+function isAnswered(q){
+  const a=state.answers[q.id]; if(a==null) return false;
+  const own=String(a.o||'').trim().length>0;
+  if(q.type==='multi') return (Array.isArray(a.v)&&a.v.length>0)||own;
+  if(q.type==='single') return !!a.v||own;
+  return String(a.v||'').trim().length>0;
+}
+function progress(){
+  const req=Q.filter(q=>!q.optional&&!state.skipped.includes(q.sec));
+  const answered=req.filter(isAnswered).length;
+  return {total:req.length,answered,pct:req.length?Math.round(answered/req.length*100):0};
+}
+function secStatus(sec){
+  if(state.skipped.includes(sec.id)) return 'skip';
+  const qs=Q.filter(q=>q.sec===sec.id&&!q.optional);
+  const n=qs.filter(isAnswered).length;
+  if(n===0) return 'none'; if(n===qs.length) return 'done'; return 'part';
+}
+let toastT; function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200)}
+
+/* ========= SKETCHES (own schematic screens, demo numbers) ========= */
+const C={line:'#dfe6ee',fg:'#0f172a',fg2:'#64748b',brand:'#1757b8',soft:'#e8f0fc',ok:'#1a7f37',oks:'#e6f4ea',warn:'#a85f00',warns:'#fff4e0',bad:'#c62828',bads:'#fdecec',white:'#fff',bg:'#f3f6fa'};
+function phone(inner,h){h=h||560;return `<svg viewBox="0 0 390 ${h}" xmlns="http://www.w3.org/2000/svg" font-family="Manrope,system-ui,sans-serif">
+<rect x="0.5" y="0.5" width="389" height="${h-1}" rx="28" fill="${C.bg}" stroke="${C.line}"/>
+<rect x="150" y="12" width="90" height="6" rx="3" fill="#cbd5e1"/>
+<rect x="0" y="30" width="390" height="48" fill="${C.brand}"/>
+<text x="20" y="60" font-size="15" font-weight="700" fill="#fff">${inner.title}</text>
+<text x="370" y="60" font-size="11" fill="#bcd6ff" text-anchor="end">${inner.sub||''}</text>
+${inner.body}</svg>`}
+function tile(x,y,w,h,t,v,unit,st,sub){
+  const col=st==='ok'?C.ok:st==='warn'?C.warn:st==='bad'?C.bad:C.fg;
+  const sc=st==='ok'?C.oks:st==='warn'?C.warns:st==='bad'?C.bads:'#eef2f7';
+  const sl=st==='ok'?'норма':st==='warn'?'внимание':st==='bad'?'плохо':'';
+  const narrow=w<150;
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="12" fill="#fff" stroke="${C.line}"/>
+  ${narrow&&st?`<rect x="${x}" y="${y+10}" width="4" height="${h-20}" rx="2" fill="${col}"/>`:''}
+  <text x="${x+12}" y="${y+20}" font-size="11.5" font-weight="600" fill="${C.fg2}">${t}</text>
+  ${sl&&!narrow?`<rect x="${x+w-62}" y="${y+9}" width="52" height="16" rx="8" fill="${sc}"/><text x="${x+w-36}" y="${y+20.5}" font-size="9.5" font-weight="700" fill="${col}" text-anchor="middle">${sl}</text>`:''}
+  <text x="${x+12}" y="${y+50}" font-size="26" font-weight="800" fill="${col}">${v}<tspan font-size="13" font-weight="600" fill="${C.fg2}"> ${unit||''}</tspan></text>
+  ${sub?`<text x="${x+12}" y="${y+h-11}" font-size="10.5" fill="${C.fg2}">${sub}</text>`:''}`;
+}
+function chip(x,y,txt,st){const col=st==='ok'?C.ok:st==='warn'?C.warn:st==='bad'?C.bad:C.fg2;const sc=st==='ok'?C.oks:st==='warn'?C.warns:st==='bad'?C.bads:'#eef2f7';const w=txt.length*6.3+16;
+  return `<rect x="${x}" y="${y}" width="${w}" height="18" rx="9" fill="${sc}"/><text x="${x+w/2}" y="${y+12.5}" font-size="10" font-weight="700" fill="${col}" text-anchor="middle">${txt}</text>`}
+function chipR(right,y,txt,st){const w=txt.length*6.3+16;return chip(right-w,y,txt,st)}
+const SK={
+ home(){
+  let b=`<text x="20" y="104" font-size="12" font-weight="700" fill="${C.bad}">▲ ТРЕБУЕТ ОСОБОГО ВНИМАНИЯ · 3</text>
+  <rect x="20" y="112" width="350" height="86" rx="12" fill="#fff" stroke="#f3c2c2"/>`;
+  const rows=[['«Уходы на второй круг» выше порога 2-й месяц','bad'],['4 поручения просрочены, 2 — более 10 дней','warn'],['Аудит IOSA: 2 несоответствия не закрыты, срок 03.11','warn']];
+  rows.forEach((r,i)=>{b+=`<circle cx="34" cy="${131+i*26}" r="4" fill="${r[1]==='bad'?C.bad:C.warn}"/><text x="46" y="${135+i*26}" font-size="11" fill="${C.fg}">${r[0]}</text>`});
+  b+=tile(20,212,170,86,'Регулярность','98,4','%','ok','цель 98,0 % · ▲ +0,6')+tile(200,212,170,86,'Безопасность','37','событий','warn','2 серьёзных инцидента');
+  b+=tile(20,308,170,86,'Аудиты','2','просрочено','warn','план 18 · выполнено 11')+tile(200,308,170,86,'Мои поручения','4','просрочено','bad','открыто 13 · в срок 82 %');
+  b+=tile(20,404,170,86,'Опасные факторы','6','активных','','ТОП: 4B, 3C')+tile(200,404,170,86,'Показатели SPI','14','из 20 в норме','warn','3 выше порога');
+  b+=tile(20,500,170,86,'Парк сегодня','31','из 35 летают','ok','ТО 3 · AOG 1')+tile(200,500,170,86,'Рейсы сегодня','58','из 71 выполнено','','задержано 4 · отмен 0');
+  return phone({title:'Главная',sub:'сегодня, 07:40',body:b},606);
+ },
+ flights(){
+  let b=`<text x="20" y="104" font-size="13" font-weight="700" fill="${C.fg}">Рейсы сегодня</text><text x="370" y="104" font-size="11" fill="${C.fg2}" text-anchor="end">71 рейс · задержано 4</text>`;
+  const rows=[['HY 101','Ташкент → Москва','UK32021','07:10 / 07:12','ok','в полёте'],['HY 271','Ташкент → Стамбул','UK78702','08:30 / 09:55','bad','задержан'],['HY 051','Самарканд → Ташкент','UK32018','09:05 / —','','ожидает'],['HY 331','Ташкент → Сеул','UK67004','10:40 / 10:38','ok','вылетел']];
+  rows.forEach((r,i)=>{const y=116+i*62;b+=`<rect x="20" y="${y}" width="350" height="54" rx="12" fill="#fff" stroke="${C.line}"/>
+   <text x="32" y="${y+21}" font-size="13" font-weight="800" fill="${C.fg}">${r[0]}</text><text x="92" y="${y+21}" font-size="12" fill="${C.fg}">${r[1]}</text>
+   <text x="32" y="${y+41}" font-size="10.5" fill="${C.fg2}">борт ${r[2]} · план / факт ${r[3]}</text>${chipR(358,y+12,r[5],r[4])}`;});
+  b+=`<rect x="20" y="370" width="350" height="74" rx="12" fill="${C.bads}" stroke="#f3c2c2"/><text x="32" y="392" font-size="11" font-weight="700" fill="${C.bad}">HY 271 · ПОЧЕМУ ЗАДЕРЖАН</text>
+  <text x="32" y="411" font-size="11.5" fill="${C.fg}">Техническая причина: замена датчика, борт UK78702.</text><text x="32" y="428" font-size="11.5" fill="${C.fg}">Новый вылет 09:55. Ответственный: Дирекция по ТОиР.</text>`;
+  b+=`<text x="20" y="476" font-size="13" font-weight="700" fill="${C.fg}">Парк · 35 бортов</text>`;
+  const st=[['В полёте',14,C.brand],['На земле',17,C.ok],['На ТО',3,C.warn],['AOG',1,C.bad]];
+  st.forEach((s,i)=>{const x=20+i*88;b+=`<rect x="${x}" y="486" width="80" height="48" rx="10" fill="#fff" stroke="${C.line}"/><text x="${x+10}" y="508" font-size="18" font-weight="800" fill="${s[2]}">${s[1]}</text><text x="${x+10}" y="524" font-size="10" fill="${C.fg2}">${s[0]}</text>`;});
+  return phone({title:'Рейсы и парк',sub:'обновлено 07:40',body:b},556);
+ },
+ reg(){
+  let b=tile(20,96,350,96,'Регулярность за 30 дней','98,4','%','ok','цель 98,0 % · 1 486 рейсов · ▲ +0,6 к прошлому месяцу');
+  b+=`<text x="20" y="218" font-size="12" font-weight="700" fill="${C.fg}">По дням</text>`;
+  const pts=[97.1,98.2,99,98.8,97.5,96.9,98.4,99.1,98.7,98.9,99.3,98.1,97.8,98.6,99,98.4,98.9,97.2,98.8,99.2,99,98.5,98.1,98.9,99.4,98.6,98.2,98.8,99,98.4];
+  let path='';pts.forEach((p,i)=>{const x=24+i*11.6,y=290-(p-96)*18;path+=(i?'L':'M')+x+' '+y});
+  b+=`<rect x="20" y="226" width="350" height="76" rx="12" fill="#fff" stroke="${C.line}"/><line x1="24" y1="254" x2="366" y2="254" stroke="${C.ok}" stroke-dasharray="3 3" stroke-width="1"/><text x="364" y="250" font-size="9" fill="${C.ok}" text-anchor="end">цель 98,0</text><path d="${path}" fill="none" stroke="${C.brand}" stroke-width="2"/>`;
+  b+=`<text x="20" y="330" font-size="12" font-weight="700" fill="${C.fg}">Причины задержек · 24 за месяц</text>`;
+  const ca=[['Технические',9],['Поздний прилёт',6],['Аэропорт и наземка',4],['Погода',3],['Экипаж',1],['УВД',1]];
+  ca.forEach((c,i)=>{const y=346+i*26;b+=`<text x="20" y="${y+12}" font-size="11" fill="${C.fg}">${c[0]}</text><rect x="150" y="${y}" width="${c[1]*20}" height="16" rx="4" fill="${C.brand}" opacity=".85"/><text x="${156+c[1]*20}" y="${y+12}" font-size="11" font-weight="700" fill="${C.fg}">${c[1]}</text>`});
+  b+=tile(20,510,110,70,'Задержки','24','','','')+tile(140,510,110,70,'Отмены','0','','ok','норма')+tile(260,510,110,70,'На запасной','2','','','');
+  return phone({title:'Регулярность',sub:'30 дней',body:b},600);
+ },
+ safety(){
+  let b=`<rect x="20" y="92" width="350" height="34" rx="10" fill="#e2e8f0"/><rect x="24" y="96" width="112" height="26" rx="8" fill="#fff"/><text x="80" y="113" font-size="11.5" font-weight="700" fill="${C.fg}" text-anchor="middle">События</text><text x="195" y="113" font-size="11.5" fill="${C.fg2}" text-anchor="middle">Опасные факторы</text><text x="310" y="113" font-size="11.5" fill="${C.fg2}" text-anchor="middle">SPI</text>`;
+  b+=tile(20,138,110,70,'Событий','37','','','')+tile(140,138,110,70,'Инцидентов','5','','warn','внимание')+tile(260,138,110,70,'Серьёзных','2','','bad','плохо');
+  b+=`<text x="20" y="236" font-size="12" font-weight="700" fill="${C.fg}">Показатели безопасности · 14 из 20 в норме</text>`;
+  const grid=['ok','ok','ok','warn','ok','ok','bad','ok','ok','ok','warn','ok','ok','bad','ok','ok','ok','warn','ok','bad'];
+  grid.forEach((g,i)=>{const x=20+(i%10)*35,y=246+Math.floor(i/10)*35;const f=g==='ok'?C.ok:g==='warn'?C.warn:C.bad;b+=`<rect x="${x}" y="${y}" width="30" height="30" rx="7" fill="${f}" opacity="${g==='ok'?.75:1}"/>`});
+  b+=`<text x="20" y="334" font-size="10.5" fill="${C.bad}">● выше порога: уходы на 2-й круг · нестаб. заходы · птицы</text>`;
+  b+=`<text x="20" y="364" font-size="12" font-weight="700" fill="${C.fg}">Матрица риска 5×5 · опасные факторы</text>`;
+  for(let r=0;r<5;r++)for(let c=0;c<5;c++){const s=r+c;const f=s<=2?C.oks:s<=5?C.warns:C.bads;const x=60+c*34,y=374+r*30;b+=`<rect x="${x}" y="${y}" width="32" height="28" fill="${f}" stroke="#fff"/>`}
+  b+=`<text x="52" y="392" font-size="9" fill="${C.fg2}" text-anchor="end">5</text><text x="52" y="512" font-size="9" fill="${C.fg2}" text-anchor="end">1</text><text x="24" y="460" font-size="9" fill="${C.fg2}" transform="rotate(-90 24 460)">вероятность</text><text x="145" y="536" font-size="9" fill="${C.fg2}" text-anchor="middle">тяжесть  A → E</text>`;
+  [[3,1,'4B'],[2,2,'3C'],[1,3,'2D']].forEach(p=>{const x=60+p[1]*34+16,y=374+(4-p[0])*30+14;b+=`<circle cx="${x}" cy="${y}" r="10" fill="${C.fg}"/><text x="${x}" y="${y+3.5}" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">${p[2]}</text>`});
+  b+=`<rect x="250" y="376" width="120" height="130" rx="12" fill="#fff" stroke="${C.line}"/><text x="262" y="396" font-size="10.5" font-weight="700" fill="${C.fg2}">ТОП ПО РИСКУ</text>
+  <text x="262" y="418" font-size="11" fill="${C.fg}"><tspan font-weight="800" fill="${C.bad}">4B</tspan> Птицы, Ташкент</text><text x="262" y="440" font-size="11" fill="${C.fg}"><tspan font-weight="800" fill="${C.warn}">3C</tspan> Усталость экипажа</text><text x="262" y="462" font-size="11" fill="${C.fg}"><tspan font-weight="800" fill="${C.warn}">2D</tspan> Наземная техника</text><text x="262" y="492" font-size="10" fill="${C.brand}" font-weight="700">Все 6 активных →</text>`;
+  return phone({title:'Безопасность полётов',sub:'30 дней',body:b},556);
+ },
+ audits(){
+  let b=tile(20,96,82,70,'План','18','','','')+tile(110,96,82,70,'Выполнено','11','','ok','норма')+tile(200,96,82,70,'Просрочено','2','','bad','плохо')+tile(290,96,80,70,'Не закрыто','7','','warn','внимание');
+  b+=`<text x="20" y="194" font-size="12" font-weight="700" fill="${C.fg}">Несоответствия · 7 не закрыто</text>`;
+  const rows=[['IOSA · FLT 3.1.2','Лётная дирекция','03.11','bad','просрочено'],['IOSA · MNT 1.4.5','Дирекция по ТОиР','03.11','warn','7 дней'],['Внутренний № 14','Служба наземного обеспечения','20.11','','в работе'],['Надзорный · п. 12','Отдел качества','30.11','','в работе']];
+  rows.forEach((r,i)=>{const y=204+i*58;b+=`<rect x="20" y="${y}" width="350" height="50" rx="12" fill="#fff" stroke="${C.line}"/><text x="32" y="${y+20}" font-size="12" font-weight="700" fill="${C.fg}">${r[0]}</text><text x="32" y="${y+38}" font-size="10.5" fill="${C.fg2}">${r[1]} · срок ${r[2]}</text>${chipR(358,y+16,r[4],r[3])}`});
+  b+=`<rect x="20" y="444" width="350" height="46" rx="12" fill="${C.brand}"/><text x="195" y="472" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Запросить отчёт по несоответствиям</text>`;
+  return phone({title:'Аудиты',sub:'план 2026',body:b},516);
+ },
+ orders(){
+  let b=`<rect x="20" y="92" width="350" height="200" rx="14" fill="#fff" stroke="${C.line}"/>
+  <text x="34" y="116" font-size="10.5" font-weight="700" fill="${C.fg2}">№ 112 · ОСНОВАНИЕ: ПРОТОКОЛ КОМИТЕТА ПО БП</text>
+  <text x="34" y="140" font-size="13.5" font-weight="700" fill="${C.fg}">Провести внеочередной инструктаж по уходам</text><text x="34" y="158" font-size="13.5" font-weight="700" fill="${C.fg}">на второй круг для всех экипажей A320</text>
+  <text x="34" y="182" font-size="11.5" fill="${C.fg2}">Исполнитель: Лётная дирекция · Срок: 15.11</text>`;
+  b+=`<line x1="44" y1="226" x2="346" y2="226" stroke="${C.line}" stroke-width="3"/><line x1="44" y1="226" x2="230" y2="226" stroke="${C.brand}" stroke-width="3"/>
+  <circle cx="44" cy="226" r="6" fill="${C.brand}"/><circle cx="346" cy="226" r="6" fill="#fff" stroke="${C.fg2}" stroke-width="2"/>
+  <g transform="translate(230 226) rotate(0)"><path d="M-10 0 L8 -4 L8 4 Z M-4 0 L10 0" fill="${C.brand}" stroke="${C.brand}" stroke-width="2"/></g>
+  <text x="44" y="250" font-size="10" fill="${C.fg2}" text-anchor="middle">выдано 01.11</text><text x="230" y="250" font-size="10" font-weight="700" fill="${C.brand}" text-anchor="middle">сегодня 08.11</text><text x="346" y="250" font-size="10" fill="${C.fg2}" text-anchor="middle">срок 15.11</text>
+  ${chip(34,264,'сдано на проверку · отчёт.pdf','warn')}`;
+  b+=`<rect x="20" y="304" width="170" height="46" rx="12" fill="${C.ok}"/><text x="105" y="332" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">Принять</text>
+  <rect x="200" y="304" width="170" height="46" rx="12" fill="#fff" stroke="${C.line}"/><text x="285" y="332" font-size="13" font-weight="700" fill="${C.fg}" text-anchor="middle">Вернуть на доработку</text>`;
+  b+=`<text x="20" y="384" font-size="12" font-weight="700" fill="${C.fg}">История</text>
+  <text x="20" y="404" font-size="11" fill="${C.fg2}">01.11 · выдано</text><text x="20" y="422" font-size="11" fill="${C.fg2}">05.11 · запрос переноса срока отклонён (причина: не указана)</text><text x="20" y="440" font-size="11" fill="${C.fg2}">08.11 · сдано на проверку, приложен отчёт</text>`;
+  b+=`<text x="20" y="476" font-size="12" font-weight="700" fill="${C.fg}">По дирекциям · в срок</text>`;
+  [['Лётная дирекция',91,'ok'],['Дирекция по ТОиР',64,'bad'],['Наземное обеспечение',78,'warn']].forEach((d,i)=>{const y=488+i*26;const col=d[2]==='ok'?C.ok:d[2]==='warn'?C.warn:C.bad;b+=`<text x="20" y="${y+12}" font-size="11" fill="${C.fg}">${d[0]}</text><rect x="175" y="${y+2}" width="150" height="12" rx="6" fill="#e2e8f0"/><rect x="175" y="${y+2}" width="${d[1]*1.5}" height="12" rx="6" fill="${col}"/><text x="334" y="${y+12}" font-size="11" font-weight="700" fill="${col}">${d[1]} %</text>`});
+  return phone({title:'Поручения',sub:'открыто 13',body:b},576);
+ },
+ map(){
+  let b=`<rect x="60" y="94" width="270" height="56" rx="12" fill="${C.brand}"/><text x="195" y="117" font-size="12.5" font-weight="700" fill="#fff" text-anchor="middle">Руководство компании</text><text x="195" y="136" font-size="10" fill="#bcd6ff" text-anchor="middle">поручений 13 · просрочено 4 · несоотв. 7</text>
+  <line x1="195" y1="150" x2="195" y2="170" stroke="${C.line}" stroke-width="2"/><line x1="78" y1="170" x2="312" y2="170" stroke="${C.line}" stroke-width="2"/>`;
+  const dirs=[['Лётная дирекция','Каримов А.',[3,0,2,12],'ok'],['Дирекция по ТОиР','Рахимов Б.',[4,2,3,9],'bad'],['Наземное обеспечение','Юсупов С.',[2,1,1,6],'warn'],['Отдел качества','Назарова Д.',[1,0,1,0],'ok'],['Коммерческая дирекция','Ахмедов Т.',[2,1,0,0],'warn'],['Служба БП','Исмаилов Р.',[1,0,0,10],'ok']];
+  dirs.forEach((d,i)=>{const col=i%2,row=Math.floor(i/2);const x=20+col*178,y=186+row*108;const st=d[3];const sc=st==='ok'?C.ok:st==='warn'?C.warn:C.bad;
+   b+=`<rect x="${x}" y="${y}" width="172" height="96" rx="12" fill="#fff" stroke="${C.line}"/><rect x="${x}" y="${y}" width="5" height="96" rx="2" fill="${sc}"/>
+   <text x="${x+16}" y="${y+20}" font-size="11.5" font-weight="700" fill="${C.fg}">${d[0]}</text><text x="${x+16}" y="${y+36}" font-size="10" fill="${C.fg2}">${d[1]}</text>
+   <text x="${x+16}" y="${y+58}" font-size="10" fill="${C.fg}">поручений <tspan font-weight="800">${d[2][0]}</tspan>  · просрочено <tspan font-weight="800" fill="${d[2][1]?C.bad:C.fg}">${d[2][1]}</tspan></text>
+   <text x="${x+16}" y="${y+76}" font-size="10" fill="${C.fg}">несоотв. <tspan font-weight="800" fill="${d[2][2]?C.warn:C.fg}">${d[2][2]}</tspan>  · событий <tspan font-weight="800">${d[2][3]}</tspan></text>`;});
+  return phone({title:'Карта процессов',sub:'живой статус',body:b},530);
+ },
+ truth(){
+  let b=`<text x="20" y="106" font-size="12" font-weight="700" fill="${C.fg}">Откуда берётся цифра</text>`;
+  b+=`<rect x="20" y="118" width="350" height="100" rx="12" fill="#fff" stroke="${C.line}"/><text x="32" y="140" font-size="11.5" font-weight="600" fill="${C.fg2}">Регулярность</text>${chipR(358,128,'из системы','ok')}
+  <text x="32" y="176" font-size="28" font-weight="800" fill="${C.ok}">98,4<tspan font-size="13" fill="${C.fg2}" font-weight="600"> %</tspan></text>
+  <text x="32" y="203" font-size="10.5" fill="${C.fg2}">Источник: система расписания · обновлено сегодня 07:40</text>`;
+  b+=`<rect x="20" y="230" width="350" height="100" rx="12" fill="#fff" stroke="#f0d9a8"/><text x="32" y="252" font-size="11.5" font-weight="600" fill="${C.fg2}">Исправность парка</text>${chipR(358,240,'введено вручную','warn')}
+  <text x="32" y="288" font-size="28" font-weight="800" fill="${C.fg}">91<tspan font-size="13" fill="${C.fg2}" font-weight="600"> %</tspan></text>
+  <text x="32" y="315" font-size="10.5" fill="${C.warn}">Ввёл: Рахимов Б., Дирекция по ТОиР · 06.11 18:20 · 2 дня назад</text>`;
+  b+=`<text x="20" y="364" font-size="12" font-weight="700" fill="${C.fg}">Поручение нельзя закрыть самому</text>
+  <rect x="20" y="376" width="350" height="118" rx="12" fill="#fff" stroke="${C.line}"/>`;
+  const steps=[['Исполнитель','сдал с файлом',C.brand],['Автор поручения','проверил',C.brand],['Автор поручения','принял / вернул',C.ok]];
+  steps.forEach((s,i)=>{const x=36+i*112;b+=`<circle cx="${x+10}" cy="404" r="10" fill="${s[2]}"/><text x="${x+10}" y="408" font-size="10" font-weight="800" fill="#fff" text-anchor="middle">${i+1}</text>${i<2?`<line x1="${x+24}" y1="404" x2="${x+98}" y2="404" stroke="${C.line}" stroke-width="2"/>`:''}
+   <text x="${x}" y="432" font-size="10" font-weight="700" fill="${C.fg}">${s[0]}</text><text x="${x}" y="447" font-size="9.5" fill="${C.fg2}">${s[1]}</text>`});
+  b+=`<text x="36" y="478" font-size="10" fill="${C.fg2}">Перенос срока только по запросу с причиной. История не стирается.</text>`;
+  return phone({title:'Карточка показателя',sub:'',body:b},520);
+ },
+ day(){
+  let b=`<text x="20" y="104" font-size="11" font-weight="700" fill="${C.fg2}">БРИФИНГ · ПЯТНИЦА, 8 НОЯБРЯ · 07:40</text>`;
+  b+=tile(20,112,110,78,'Горит','3','','bad','отклонения')+tile(140,112,110,78,'Ждут приёмки','2','','warn','поручения')+tile(260,112,110,78,'Сегодня','4','','','встречи');
+  b+=`<text x="20" y="220" font-size="12" font-weight="700" fill="${C.fg}">Сегодня</text>`;
+  const ev=[['09:00','Планёрка с директорами','переговорная 2'],['11:00','Комитет по безопасности полётов','повестка собрана: 3 отклонения'],['14:30','Встреча с лизингодателем','материалы приложены'],['17:00','Доклад по регулярности за неделю','']];
+  ev.forEach((e,i)=>{const y=230+i*50;b+=`<rect x="20" y="${y}" width="350" height="42" rx="10" fill="#fff" stroke="${C.line}"/><text x="32" y="${y+26}" font-size="12" font-weight="800" fill="${C.brand}" class="num">${e[0]}</text><text x="84" y="${y+19}" font-size="11.5" font-weight="600" fill="${C.fg}">${e[1]}</text><text x="84" y="${y+34}" font-size="10" fill="${C.fg2}">${e[2]}</text>`});
+  b+=`<text x="20" y="450" font-size="12" font-weight="700" fill="${C.fg}">Жду от других</text>`;
+  [['Отчёт по инциденту HY 271','Служба БП · сегодня','warn'],['Предложения по зимнему расписанию','Коммерческая дирекция · 12.11','']].forEach((w,i)=>{const y=460+i*44;b+=`<rect x="20" y="${y}" width="350" height="36" rx="10" fill="#fff" stroke="${C.line}"/><text x="32" y="${y+16}" font-size="11.5" font-weight="600" fill="${C.fg}">${w[0]}</text><text x="32" y="${y+30}" font-size="10" fill="${w[2]?C.warn:C.fg2}">${w[1]}</text>`});
+  b+=`<circle cx="340" cy="574" r="22" fill="${C.brand}"/><text x="340" y="582" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">+</text>`;
+  return phone({title:'Мой день',sub:'8 ноября',body:b},612);
+ }
+};
+
+/* ========= RENDER ========= */
+const app=$('#app'), nav=$('#nav'), btnBack=$('#btnBack'), btnNext=$('#btnNext');
+const ORDER=['start',...SECTIONS.map(s=>s.id),'final'];
+let view='start';
+
+function render(){
+  const i=ORDER.indexOf(view);
+  const p=progress();
+  $('#bar').style.width=p.pct+'%';
+  $('#stepLbl').textContent=view==='start'?'':view==='final'?'Итог':`Раздел ${i} из ${SECTIONS.length}`;
+  if(view==='start') app.innerHTML=renderStart();
+  else if(view==='final') app.innerHTML=renderFinal();
+  else app.innerHTML=renderSection(SECTIONS[i-1]);
+  nav.hidden=(view==='start');
+  const ch=document.getElementById('chips');ch.innerHTML=SECTIONS.map((sec,k)=>{const st=secStatus(sec);return `<button data-chip="${sec.id}" class="${sec.id===view?'cur ':''}${st}">${st==='done'?'✓ ':''}${k+1}. ${sec.short}</button>`}).join('')+`<button data-chip="final" class="${view==='final'?'cur':''}">Отправить</button>`;ch.querySelectorAll('button').forEach(b=>b.onclick=()=>go(b.dataset.chip));const cc=ch.querySelector('.cur');if(cc)cc.scrollIntoView({block:'nearest',inline:'center'});
+  btnBack.style.visibility=i>1?'visible':'hidden';
+  btnNext.textContent=view==='final'?'К началу':(i===ORDER.length-2?'Завершить':'Далее');
+  window.scrollTo({top:0,behavior:'instant'});
+  bind();
+}
+
+function renderStart(){
+  const p=progress();
+  return `
+  <div class="hero">
+    <div class="eyebrow">Подробная анкета, около 15 минут</div>
+    <h1>Что должно быть в приложении для руководителя</h1>
+    <p>Мы готовим приложение для руководителя. В нём будут показатели по направлениям компании, контроль поручений и план дня, всё на телефоне. Прежде чем рисовать экраны, нам нужно узнать, что у вас ведётся сейчас, где лежат данные и что должно быть на экране.</p>
+    <div class="three"><div><b>Показатели</b><span>по направлениям компании, с отклонениями от нормы</span></div><div><b>Поручения</b><span>кому дано, срок, что сдано, принято или нет</span></div><div><b>План дня</b><span>встречи, дела, утренняя сводка</span></div></div>
+  </div>
+  <div class="card">
+    <h3>Как отвечать</h3>
+    <p style="margin-bottom:8px">В каждом разделе сначала коротко показано, что мы предлагаем, затем несколько вопросов. Почти везде нужно просто выбрать вариант. Разделы не по вашей части можно пропустить.</p>
+    <p class="note" style="margin:0">Ответы сохраняются сами. Можно закрыть и вернуться позже с этого же устройства. ${p.answered?`<b style="color:var(--ok)">Отвечено ${p.answered} из ${p.total}.</b>`:''}</p>
+  </div>
+  <button class="btn main big" data-go="${p.answered?nextUnfinished():'s1'}">${p.answered?'Продолжить':'Начать'}</button>
+  <div class="card" style="margin-top:16px">
+    <h3>Разделы</h3>
+    <div class="toc">${SECTIONS.map((s,k)=>{const st=secStatus(s);const lbl=st==='done'?'готово':st==='skip'?'пропущен':st==='part'?'частично':'';return `<button data-go="${s.id}"><span class="i">${k+1}</span><span class="tt">${s.title}</span><span class="st ${st}">${lbl}</span></button>`}).join('')}</div>
+  </div>`;
+}
+function nextUnfinished(){for(const s of SECTIONS){const st=secStatus(s);if(st==='none'||st==='part')return s.id}return 'final'}
+
+function renderSection(sec){
+  const k=SECTIONS.indexOf(sec);
+  const qs=Q.filter(q=>q.sec===sec.id);
+  const skipped=state.skipped.includes(sec.id);
+  let h=`<div class="secnav"><span>Раздел ${k+1} из ${SECTIONS.length}</span><a data-go="start">Все разделы</a></div>
+  <h2>${sec.title}</h2><p class="lead">${sec.intro}</p>`;
+  if(sec.propose){
+    h+=`<div class="card soft propose"><h3>Что мы предлагаем показать</h3><ul>${sec.propose.map(p=>`<li><span class="dot"></span><span>${p[0]}<span class="tag ${p[1]}">${p[1]==='now'?'можно сразу':'нужна система-источник'}</span></span></li>`).join('')}</ul>
+    <div class="legend"><span><span class="tag now" style="margin:0">можно сразу</span> данные вводятся или уже есть в таблицах</span><span><span class="tag sys" style="margin:0">нужна система-источник</span> нужно подключить программу, где эти данные ведутся</span></div>
+    ${sec.sketch?`<div class="sketch">${SK[sec.sketch]()}<div class="cap">Эскиз экрана. Цифры условные, для примера.</div></div>`:''}
+    </div>`;
+  }
+  h+=`<h3 style="margin:18px 0 10px">Вопросы</h3>`;
+  if(skipped) h+=`<div class="card" style="text-align:center"><p>Раздел пропущен.</p><button class="btn sec" data-unskip="${sec.id}">Всё же ответить</button></div>`;
+  else{
+    h+=qs.map(renderQ).join('');
+    h+=`<div class="skip"><button data-skip="${sec.id}">Пропустить раздел: не моя область</button></div>`;
+  }
+  return h;
+}
+const CHECK='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+function renderQ(q){
+  const a=state.answers[q.id]||{};
+  const done=isAnswered(q);
+  let h=`<div class="q ${done?'done':''}" data-q="${q.id}"><div class="qh"><span class="n">${q.id}</span><span class="t">${q.t}</span>${done?'<span class="ok-mark">✓</span>':''}</div>`;
+  if(q.hint) h+=`<div class="hint">${q.hint}</div>`;
+  else if(q.type==='multi') h+=`<div class="hint">Можно выбрать несколько</div>`;
+  if(q.type==='single'||q.type==='multi'){
+    const sel=q.type==='multi'?(a.v||[]):(a.v?[a.v]:[]);
+    h+=`<div class="opts">`+q.opts.map((o,idx)=>{
+      const t=optT(o),inp=optIn(o);const on=sel.includes(t);
+      let s=`<button class="opt ${q.type} ${on?'sel':''}" data-opt="${idx}"><span class="box">${CHECK}</span><span class="lbl">${esc(t)}</span></button>`;
+      if(inp&&on) s+=`<div class="sub"><input type="text" placeholder="${esc(inp)}…" data-subin="${idx}" value="${esc((a.x||{})[t]||'')}"></div>`;
+      return s;}).join('')+`</div><div class="free own"><input type="text" placeholder="Свой вариант или уточнение" data-own="1" value="${esc(a.o||'')}"></div>`;
+  } else if(q.type==='number'){
+    h+=`<div class="free"><input type="number" inputmode="numeric" min="0" placeholder="Число" data-free="1" value="${esc(a.v||'')}"></div>`;
+  } else {
+    h+=`<div class="free"><textarea placeholder="Ваш ответ" data-free="1">${esc(a.v||'')}</textarea></div>`;
+  }
+  return h+`</div>`;
+}
+
+function compactText(){
+  const lines=['Ответы на опрос · '+new Date().toLocaleDateString('ru-RU')+' · '+state.rid];
+  SECTIONS.forEach((sec,k)=>{
+    if(state.skipped.includes(sec.id)){lines.push(`[${k+1}] ${sec.short}: пропущен`);return;}
+    const qs=Q.filter(q=>q.sec===sec.id&&isAnswered(q)); if(!qs.length) return;
+    lines.push(`[${k+1}] ${sec.short}`);
+    qs.forEach(q=>lines.push(`${q.id}. ${answerStr(q)}`));
+  });
+  return lines.join('\n');
+}
+function answerStr(q){
+  const a=state.answers[q.id]||{};let v='';
+  if(q.type==='multi') v=(a.v||[]).map(t=>t+((a.x||{})[t]?` (${a.x[t]})`:'')).join('; ');
+  else if(q.type==='single') v=a.v?a.v+((a.x||{})[a.v]?` (${a.x[a.v]})`:''):'';
+  else v=String(a.v||'').trim();
+  if(a.o&&String(a.o).trim()) v=(v?v+' · ':'')+'свой ответ: '+String(a.o).trim();
+  return v||'—';
+}
+function tgParts(){
+  const full=compactText(); const LIM=1800; const parts=[];
+  if(full.length<=LIM) return [full];
+  let cur='';
+  full.split('\n').forEach(l=>{ if((cur+'\n'+l).length>LIM){parts.push(cur);cur=l} else cur=cur?cur+'\n'+l:l; });
+  if(cur) parts.push(cur);
+  return parts.map((p,i)=>`(часть ${i+1} из ${parts.length})\n`+p);
+}
+function renderFinal(){
+  const p=progress();
+  const txt=exportText();
+  const parts=tgParts();
+  const tgBtns=parts.map((t,i)=>`<a class="btn main big" href="https://t.me/share/url?url=${encodeURIComponent(location.href.split('#')[0])}&text=${encodeURIComponent(t)}" target="_blank" rel="noopener" style="text-decoration:none;margin-bottom:8px">Отправить в Telegram${parts.length>1?`, часть ${i+1} из ${parts.length}`:''}</a>`).join('');
+  return `<div class="eyebrow">Итог</div><h2>${p.answered===p.total?'Спасибо, всё заполнено':'Почти готово'}</h2>
+  <div class="sum"><div><b>${p.answered}</b><span>ответов из ${p.total}</span></div><div><b>${SECTIONS.filter(s=>secStatus(s)==='done').length}</b><span>разделов полностью</span></div><div><b>${state.skipped.length}</b><span>пропущено</span></div></div>
+  ${p.answered<p.total?`<div class="card"><p style="margin:0">Остались вопросы без ответа. Это нормально, если они не по вашей части. <a data-go="${nextUnfinished()==='final'?'start':nextUnfinished()}" style="color:var(--brand);font-weight:600;cursor:pointer">Вернуться к незаполненному</a></p></div>`:''}
+  <div class="card">
+    <h3>Отправьте ответы</h3>
+    <p>Кнопка откроет Telegram с готовым сообщением. Выберите того, кто прислал вам ссылку, и нажмите «Отправить».</p>
+    ${tgBtns}
+    <button class="btn sec big" id="copyBtn">Скопировать ответы</button>
+    <p class="note" style="margin:10px 0 0">Если Telegram не открылся, скопируйте ответы и вставьте их в чат.</p>
+  </div>
+  <div class="card"><h3>Ваши ответы</h3><div class="ans" id="ansBox">${esc(txt)}</div></div>
+  <div class="card"><h3>Что дальше</h3><p style="margin:0">По ответам мы составим техническое задание и нарисуем первый макет экранов, затем покажем его вам.</p></div>`;
+}
+function exportText(){
+  const lines=['Опрос: приложение для руководителя','Респондент: '+state.rid,'Дата: '+new Date().toLocaleString('ru-RU'),''];
+  SECTIONS.forEach((s,k)=>{
+    lines.push(`[${k+1}] ${s.title}${state.skipped.includes(s.id)?' (пропущен)':''}`);
+    Q.filter(q=>q.sec===s.id).forEach(q=>{
+      const a=state.answers[q.id];let v='—';
+      if(a){ if(q.type==='multi') v=(a.v||[]).map(t=>t+((a.x||{})[t]?` (${a.x[t]})`:'')).join('; ')||'—';
+        else if(q.type==='single') v=a.v?a.v+((a.x||{})[a.v]?` (${a.x[a.v]})`:''):'—';
+        else v=String(a.v||'').trim()||'—';
+        if(a.o&&String(a.o).trim()) v=(v==='—'?'':v+' · ')+'свой ответ: '+String(a.o).trim(); }
+      lines.push(`${q.id}. ${q.t} ${v}`);
+    });
+    lines.push('');
+  });
+  return lines.join('\n');
+}
+
+/* ========= EVENTS ========= */
+function bind(){
+  app.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();go(b.dataset.go)}));
+  app.querySelectorAll('[data-skip]').forEach(b=>b.addEventListener('click',()=>{const id=b.dataset.skip;if(!state.skipped.includes(id))state.skipped.push(id);touched();go(nextAfter(id))}));
+  app.querySelectorAll('[data-unskip]').forEach(b=>b.addEventListener('click',()=>{state.skipped=state.skipped.filter(x=>x!==b.dataset.unskip);touched();render()}));
+  app.querySelectorAll('.q').forEach(qel=>{
+    const q=Q.find(x=>x.id===+qel.dataset.q);
+    qel.querySelectorAll('[data-opt]').forEach(b=>b.addEventListener('click',()=>{
+      const t=optT(q.opts[+b.dataset.opt]);const a=state.answers[q.id]||(state.answers[q.id]={});
+      if(q.type==='single'){a.v=(a.v===t?null:t)}
+      else{a.v=a.v||[];const i=a.v.indexOf(t);if(i>=0)a.v.splice(i,1);else a.v.push(t)}
+      touched();refreshQ(qel,q);
+    }));
+    qel.querySelectorAll('[data-subin]').forEach(inp=>inp.addEventListener('input',()=>{
+      const t=optT(q.opts[+inp.dataset.subin]);const a=state.answers[q.id]||(state.answers[q.id]={});a.x=a.x||{};a.x[t]=inp.value;touched();
+    }));
+    qel.querySelectorAll('[data-own]').forEach(inp=>inp.addEventListener('input',()=>{
+      const a=state.answers[q.id]||(state.answers[q.id]={});a.o=inp.value;touched();refreshQ(qel,q);
+    }));
+    qel.querySelectorAll('[data-free]').forEach(inp=>inp.addEventListener('input',()=>{
+      const a=state.answers[q.id]||(state.answers[q.id]={});a.v=inp.value;touched();
+      qel.classList.toggle('done',isAnswered(q));const m=qel.querySelector('.ok-mark');if(isAnswered(q)&&!m){qel.querySelector('.qh').insertAdjacentHTML('beforeend','<span class="ok-mark">✓</span>')}else if(!isAnswered(q)&&m)m.remove();
+      $('#bar').style.width=progress().pct+'%';
+    }));
+  });
+  const cb=$('#copyBtn'); if(cb) cb.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(compactText());toast('Скопировано. Вставьте в Telegram')}catch(e){const box=$('#ansBox');if(box){const r=document.createRange();r.selectNodeContents(box);const sel=getSelection();sel.removeAllRanges();sel.addRange(r)}toast('Текст выделен ниже, скопируйте его вручную')}});
+}
+function refreshQ(qel,q){
+  const a=state.answers[q.id]||{};
+  const sel=q.type==='multi'?(a.v||[]):(a.v?[a.v]:[]);
+  qel.querySelectorAll('[data-opt]').forEach(b=>{
+    const idx=+b.dataset.opt,o=q.opts[idx],t=optT(o),inp=optIn(o),on=sel.includes(t);
+    b.classList.toggle('sel',on);
+    let sub=b.nextElementSibling&&b.nextElementSibling.classList.contains('sub')?b.nextElementSibling:null;
+    if(inp&&on&&!sub){
+      b.insertAdjacentHTML('afterend',`<div class="sub"><input type="text" placeholder="${esc(inp)}…" data-subin="${idx}" value="${esc((a.x||{})[t]||'')}"></div>`);
+      const ni=b.nextElementSibling.querySelector('input');
+      ni.addEventListener('input',()=>{const aa=state.answers[q.id]||(state.answers[q.id]={});aa.x=aa.x||{};aa.x[t]=ni.value;touched();});
+      ni.focus();
+    } else if(sub&&!(inp&&on)) sub.remove();
+  });
+  const done=isAnswered(q);
+  qel.classList.toggle('done',done);
+  const m=qel.querySelector('.ok-mark');
+  if(done&&!m) qel.querySelector('.qh').insertAdjacentHTML('beforeend','<span class="ok-mark">✓</span>');
+  else if(!done&&m) m.remove();
+  $('#bar').style.width=progress().pct+'%';
+}
+function nextAfter(id){const i=ORDER.indexOf(id);return ORDER[Math.min(i+1,ORDER.length-1)]}
+function go(v){if(!ORDER.includes(v))v='start';view=v;try{if(location.hash!=='#'+v)history.replaceState(null,'','#'+v)}catch(e){}render()}
+btnNext.addEventListener('click',()=>{if(view==='final')go('start');else go(nextAfter(view))});
+btnBack.addEventListener('click',()=>{const i=ORDER.indexOf(view);go(ORDER[Math.max(i-1,0)])});
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(ORDER.includes(h)&&h!==view){view=h;render()}});
+
+const h0=location.hash.slice(1);
+view=ORDER.includes(h0)?h0:'start';
+render();
+})();
+</script>
+</body>
+</html>
